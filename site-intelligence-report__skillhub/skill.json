@@ -1,0 +1,29 @@
+{
+  "name": "site-intelligence-report",
+  "version": "1.1.0",
+  "description": "基于用户输入的品牌、点位和品类，生成 10 节结构化选址分析报告（24 字段 + 附录 A/B/C），含数据时效分级、完整标签系统、3x3 财务敏感性矩阵、概率×影响 风险矩阵、行动清单 4 维评估、资金准备 3 大类、谈判话术、多地址对比。数据来源为公开网络内容，零 API Key 配置。",
+  "license": "MIT",
+  "runtime": "llm",
+  "entry": "SKILL.md",
+  "tags": ["选址分析", "拓店尽调", "品牌调研", "联网搜索"],
+  "keywords": ["选址", "拓店", "开店", "品牌调研", "客流", "竞品分析", "回本测算"],
+  "triggers": [
+    "我想在 [地址] 开 [品牌/品类]",
+    "分析下 [地址] 适不适合开 [品牌]",
+    "评估 [品牌] 在 [城市] 还能开吗",
+    "这个位置能开 [品类] 吗",
+    "选址分析",
+    "开店分析",
+    "拓店调研"
+  ],
+  "input_schema": {
+    "brand": "string 品牌名或「未指定」",
+    "address": "string 候选点位详细地址",
+    "city": "string 城市名",
+    "category": "string 品类（奶茶/咖啡/快餐/正餐/麻辣烫/烘焙）",
+    "expected_rent": "number? 期望月租（元）",
+    "expected_area": "number? 期望面积（㎡）"
+  },
+  "output_formats": ["markdown"],
+  "data_source": "公开网络内容（新闻/百科/官方/小红书/点评等）"
+}
