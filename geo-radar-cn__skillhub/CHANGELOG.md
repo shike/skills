@@ -6,6 +6,112 @@ GEO 雷达 skill 的所有重要变更都记录在此文件。版本号遵循 [S
 
 ---
 
+## [2.0.0] - 2026-08-10
+
+### 🔄 重大重构(v2.0)
+
+#### 核心变更:v1.0 web_search 代理 → v2.0 Playwright 爬虫
+
+**v1.0 的根本问题**:
+- v1.0 用 web_search 抓"AI 引擎引用了哪些网页"(间接信号)
+- 实际上**真正的 GEO** 是"直接问 LLM 怎么回答"(真实信号)
+- v1.0 报告虽然数据真实,但**不是 GEO**,是"AI 引用源 SEO 监测"
+- 国内 AI 引擎(豆包/Kimi/通义)是 SPA,web_search 抓不到真实 LLM 输出
+
+**v2.0 解决方案**:
+- 用 **Playwright 爬虫**模拟用户在浏览器里打开豆包/Kimi/通义,输入 prompt,等回答,抓文本+截图+引用源
+- 不需要 API key,只需要用户**首次**在浏览器登录各平台(cookie 持久化)
+- 跑一次: 20-30 prompts × 3 平台 = 60-90 次问询,约 3-12 分钟
+
+#### 新增(v2.0)
+
+- **`scripts/crawler/doubao.py`** — 豆包爬虫(playwright,8.7KB)
+- **`scripts/crawler/kimi.py`** — Kimi 爬虫(6.7KB)
+- **`scripts/crawler/tongyi.py`** — 通义千问爬虫(6.5KB)
+- **`scripts/crawler/runner.py`** — GEORunner 批量跑批 + JSON/Markdown 报告生成(9.7KB)
+- **`scripts/crawler/__init__.py`** — 模块导出
+- **`references/crawler-setup.md`** — Playwright 安装 + 平台登录 + 跑批完整流程
+- **`references/llm-test-prompts.md`** — 8 行业 × 4 类型 LLM 测试 prompt 库(替代旧的 web-search-prompts.md)
+
+#### 平台支持
+
+| 平台 | 优先级 | 月活 | 跑批成熟度 |
+|---|---|---|---|
+| 豆包 Doubao | 🥇 优先 | 4.4 亿 | ✅ 成熟 |
+| Kimi Moonshot | 🥇 优先 | — | ✅ 成熟 |
+| 通义千问 Tongyi | 🥈 备选 | — | ✅ 成熟 |
+| 文心一言 / 元宝 / 秘塔 | — | — | ❌ v2.0 未实现 |
+| ChatGPT / Claude | — | — | ❌ v2.1 规划(需海外环境) |
+
+#### SKILL.md 重写(关键变更)
+
+- frontmatter version 1.0.0 → 2.0.0
+- description 改:"基于 Playwright 爬虫的多 LLM 引擎可见度真实诊断"
+- Step 1 从"web_search 跑批"改为"Playwright 爬虫跑批"
+- 鲁棒性表从 11 场景改为 12 场景(加 v2.0 爬虫相关降级)
+- 免责声明 4 部分改:v2.0 爬虫,Playwright 数据来源
+- 新增"运行环境要求"section(Playwright + Chromium + 登录态)
+
+#### v1.0 兼容
+
+- v1.0 web_search 代理模式**保留**,可通过 `--mode preview` 调用
+- 数据是间接信号,报告顶部明示"⚠️ web_search 代理信号,非真实 LLM 输出"
+- 旧 examples/ 范本仍有效(mock 模式)
+
+#### CI 验证(v2.0)
+
+- `pattern_checker`: **119 ✅ / 1 warn / 0 ❌**(v2.0 爬虫模块 + URL + CHANGELOG 全过)
+  - 唯一 warn: `triggers 10 个(建议 ≥ 20)` — P1 项
+- `chaos`: **16 ✅ / 0 warn / 0 ❌**
+- `output_checker`: **3/3 全过**
+- `llm_runner mock`: **3/3 真实 verify**(v1.0 兼容)
+
+#### 已知限制(v2.0)
+
+- ⚠️ **需要用户先在浏览器登录**豆包/Kimi/通义(cookie 持久化到 `~/.geo-radar-cn/browser-profile-{platform}/`)
+- ⚠️ 平台反爬升级时,爬虫可能失效(需更新 selector)
+- ⚠️ 跑批需 3-12 分钟(比 web_search 慢)
+- ⚠️ Mavis 沙箱环境无法装 playwright(限速/超时),实际跑批需用户在自己环境执行
+- ⚠️ 文心一言/腾讯元宝/秘塔 v2.0 未实现
+- ⚠️ 海外 LLM(ChatGPT/Claude) v2.1 规划
+
+#### 文件结构(v2.0)
+
+```
+geo-radar-cn__skillhub/
+├── SKILL.md (v2.0 全文)
+├── skill.json
+├── skill-card.md
+├── README.md
+├── CHANGELOG.md (本文件)
+├── PUBLISH-CHECKLIST.md
+├── _meta.json / _skillhub_meta.json
+├── user_license.json
+├── icon.png
+├── scripts/
+│   └── crawler/            # v2.0 核心
+│       ├── __init__.py
+│       ├── doubao.py
+│       ├── kimi.py
+│       ├── tongyi.py
+│       └── runner.py
+├── references/             # 7 个文件(v2.0 新增 2 个)
+│   ├── query-templates.md
+│   ├── report-schema.md
+│   ├── web-search-prompts.md  # v1.0 兼容
+│   ├── chaos-cases.md
+│   ├── crawler-setup.md       # v2.0 新增
+│   └── llm-test-prompts.md    # v2.0 新增
+├── examples/  (3 份 v1.0 范本,mock 模式)
+└── tests/   (4 件套 CI)
+    ├── pattern_checker.py
+    ├── chaos/...
+    ├── output_checker.py
+    └── llm_runner.py
+```
+
+---
+
 ## [Unreleased]
 
 ### 计划中

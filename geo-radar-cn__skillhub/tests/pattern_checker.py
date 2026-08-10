@@ -79,6 +79,21 @@ def check_required_files() -> None:
             ok(f)
         else:
             err(f"{f} 缺失")
+    # v2.0 爬虫模块
+    v2_required = [
+        "scripts/crawler/__init__.py",
+        "scripts/crawler/doubao.py",
+        "scripts/crawler/kimi.py",
+        "scripts/crawler/tongyi.py",
+        "scripts/crawler/runner.py",
+        "references/crawler-setup.md",
+        "references/llm-test-prompts.md",
+    ]
+    for f in v2_required:
+        if (ROOT / f).exists():
+            ok(f"v2.0: {f}")
+        else:
+            err(f"v2.0 缺失: {f}")
 
 
 # ============================================================
@@ -348,6 +363,47 @@ def check_skill_json() -> None:
         warn(f"examples {len(files)} 份范本（建议 ≥ 3 覆盖高/中/低数据）")
 
 
+def check_v2_crawler_module() -> None:
+    """v2.0 爬虫模块完整性检查(代码可解析 + 关键类/函数存在)"""
+    print("\n[11/11] v2.0 爬虫模块完整性")
+    # 1. 关键类名存在(grep 静态检查,不实际 import)
+    class_checks = {
+        "scripts/crawler/doubao.py": ["class DoubaoCrawler", "def ask", "def login"],
+        "scripts/crawler/kimi.py": ["class KimiCrawler", "def ask", "def login"],
+        "scripts/crawler/tongyi.py": ["class TongyiCrawler", "def ask", "def login"],
+        "scripts/crawler/runner.py": ["class GEORunner", "def run_batch", "def save_report"],
+    }
+    for file, needles in class_checks.items():
+        text = read(ROOT / file)
+        if not text:
+            err(f"{file} 无法读取")
+            continue
+        for needle in needles:
+            if needle in text:
+                ok(f"{file.split('/')[-1]}: {needle}")
+            else:
+                err(f"{file} 缺: {needle}")
+    # 2. SKILL.md 提到 v2.0 + playwright
+    skill_text = read(ROOT / "SKILL.md")
+    if "v2.0" in skill_text and "playwright" in skill_text.lower():
+        ok("SKILL.md 提到 v2.0 + playwright")
+    else:
+        warn("SKILL.md 应明确写 v2.0 + playwright")
+    # 3. 关键平台 URL 出现
+    urls = ["doubao.com", "kimi.moonshot.cn", "tongyi.aliyun.com"]
+    for url in urls:
+        if url in skill_text or url in read(ROOT / "scripts/crawler/doubao.py") or url in read(ROOT / "scripts/crawler/runner.py"):
+            ok(f"平台 URL: {url}")
+        else:
+            warn(f"平台 URL 不在文档: {url}")
+    # 4. CHANGELOG 提到 v2.0
+    changelog = read(ROOT / "CHANGELOG.md")
+    if "v2.0" in changelog or "[2.0" in changelog:
+        ok("CHANGELOG 记录 v2.0")
+    else:
+        err("CHANGELOG 应记录 v2.0 重构")
+
+
 def main() -> int:
     print("=" * 60)
     print("GEO 雷达 Skill · 静态模式检查器")
@@ -362,6 +418,7 @@ def main() -> int:
     check_label_system()
     check_query_templates()
     check_skill_json()
+    check_v2_crawler_module()
     print("\n" + "=" * 60)
     print(f"汇总: ✅ {len(oks)} pass | ⚠️  {len(warnings)}  warn | ❌ {len(errors)} fail")
     print("=" * 60)
