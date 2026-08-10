@@ -1,0 +1,14 @@
+{
+  "license": "MIT",
+  "scope": "skill 代码与文本部分（牌义库 / 牌阵定义 / 解读框架）",
+  "excluded": "78 张牌图所有权归 Liora Moon 项目（github.com/shike/lotus-tarot），未经二次授权不得转分发",
+  "authorization_basis": "owner-self-grant",
+  "authorization_detail": {
+    "owner": "shike",
+    "source_project": "Liora Moon (github.com/shike/lotus-tarot)",
+    "source_owner": "shike（与本 skill owner 同一人）",
+    "usage": "本 skill 内的 78 张图由 skill owner 本人授权使用，无需第三方授权书",
+    "restriction": "未经 skill owner 二次授权，第三方不得转分发本 skill 内的 78 张图"
+  },
+  "notes": "塔罗牌义为公知内容（韦特体系 A.E. Waite 1910 + 荣格分析心理学派），skill 包以 MIT 协议发布；牌图按 SKILL.md §图版权声明单独处理"
+}
