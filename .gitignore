@@ -22,3 +22,7 @@ build/
 
 # Skill 自身的输出
 site_report_*.md
+
+# 打包产物（用 GitHub Releases 替代）
+*.zip
+*.tar.gz
