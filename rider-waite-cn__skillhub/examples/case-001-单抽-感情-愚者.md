@@ -60,7 +60,7 @@
 
 **位置 1（答案）**：愚者（The Fool · 正位）
 
-![愚者](assets/cards/major/the-fool.webp)
+![愚者](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-fool.webp)
 
 ---
 
@@ -68,7 +68,7 @@
 
 ### 位置 1（答案）：愚者（The Fool · 正位）
 
-![愚者](assets/cards/major/the-fool.webp)
+![愚者](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-fool.webp)
 
 - 元素: 风 | 数字: 0
 - 关键词: 新开始、纯真、自由、冒险、未知

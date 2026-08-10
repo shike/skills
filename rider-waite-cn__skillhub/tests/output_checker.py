@@ -127,12 +127,17 @@ class OutputCheck:
                 self.passes.append(f"无禁止项: 「{phrase}」")
 
     def check_images(self) -> None:
-        """图引用检查"""
-        img_count = len(re.findall(r"!\[.*?\]\(assets/cards/", self.text))
+        """图引用检查
+        兼容两种格式：
+        - 本地路径：![XX](assets/cards/major/the-fool.webp)
+        - jsdelivr URL：![XX](https://cdn.jsdelivr.net/.../assets/cards/major/the-fool.webp)
+        """
+        # 兼容两种格式的"assets/cards/"子串匹配
+        img_count = len(re.findall(r"!\[.*?\]\([^)]*assets/cards/", self.text))
         if img_count > 0:
-            self.passes.append(f"图引用 {img_count} 张")
+            self.passes.append(f"图引用 {img_count} 张（本地/URL 都兼容）")
         else:
-            self.warns.append("未发现图引用（assets/cards/...）")
+            self.warns.append("未发现图引用（assets/cards/... 本地或 URL）")
 
     def check_spread_specific(self) -> None:
         """特定 spread 检查"""

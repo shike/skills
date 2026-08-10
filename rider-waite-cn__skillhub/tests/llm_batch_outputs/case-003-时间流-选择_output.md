@@ -60,15 +60,15 @@
 
 **位置 1（过去）**：圣杯一（Ace of Cups · 正位）
 
-![圣杯一](assets/cards/minor/cups-1.webp)
+![圣杯一](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/cups-1.webp)
 
 **位置 2（现在）**：宝剑二（Two of Swords · 正位）
 
-![宝剑二](assets/cards/minor/swords-2.webp)
+![宝剑二](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/swords-2.webp)
 
 **位置 3（未来）**：权杖一（Ace of Wands · 正位）
 
-![权杖一](assets/cards/minor/wands-1.webp)
+![权杖一](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-1.webp)
 
 ---
 
@@ -76,7 +76,7 @@
 
 ### 位置 1（过去）：圣杯一（Ace of Cups · 正位）
 
-![圣杯一](assets/cards/minor/cups-1.webp)
+![圣杯一](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/cups-1.webp)
 
 - 元素: 水 | 数字: 1
 - 关键词: 新的爱、情感、连接
@@ -86,7 +86,7 @@
 
 ### 位置 2（现在）：宝剑二（Two of Swords · 正位）
 
-![宝剑二](assets/cards/minor/swords-2.webp)
+![宝剑二](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/swords-2.webp)
 
 - 元素: 风 | 数字: 2
 - 关键词: 僵局、决策、平衡
@@ -96,7 +96,7 @@
 
 ### 位置 3（未来）：权杖一（Ace of Wands · 正位）
 
-![权杖一](assets/cards/minor/wands-1.webp)
+![权杖一](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-1.webp)
 
 - 元素: 火 | 数字: 1
 - 关键词: 新开始、灵感、行动力

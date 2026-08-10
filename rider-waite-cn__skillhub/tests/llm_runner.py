@@ -132,7 +132,7 @@ def build_prompt(case_spec: dict) -> str:
 
 **输出要求**：
 - 必须按 7 节框架：抽卡确认 / 抽卡总览 / 牌序揭晓 / 单牌解读 / 牌阵联动 / 综合叙事 / 行动建议 / 边界声明
-- 每张揭晓的牌必须附 `![中文名](assets/cards/{major|minor}/{slug}.webp)`
+- 每张揭晓的牌必须附 `![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)`
 - 边界声明 4 段齐全：娱乐性质 / 专业领域 / 决策权在你 / 复现性
 - 14 条禁止项：禁止绝对预测 / 禁止医疗法律投资 / 禁止营销味 / 禁止 AI 套路 / 禁止 LLM 自由发挥 等
 - 复现性：seed={case_spec['input'].get('seed')}

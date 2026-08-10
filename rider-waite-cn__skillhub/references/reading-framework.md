@@ -67,11 +67,11 @@
 
 **位置 1（[位置名]）**：[中文名]（[英文名] · [正/逆位]）
 
-![中文名](assets/cards/{major|minor}/{slug}.webp)
+![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)
 
 **位置 2（[位置名]）**：[中文名]（[英文名] · [正/逆位]）
 
-![中文名](assets/cards/{major|minor}/{slug}.webp)
+![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)
 
 ...
 ```
@@ -79,7 +79,7 @@
 **位置名**必须从 `references/spreads.md` 对应牌阵的位置表里取，不得自创。
 
 **插图规则**：
-- 每张抽到的牌**必须**附图（`![中文名](assets/cards/{major|minor}/{slug}.webp)`）
+- 每张抽到的牌**必须**附图（`![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)`）
 - 大阿卡纳路径：`assets/cards/major/{slug}.webp`（如 `the-fool.webp` / `the-magician.webp`）
 - 小阿卡纳路径：`assets/cards/minor/{slug}.webp`（如 `wands-1.webp` / `cups-7.webp`）
 - slug 必须与 `references/78-cards.md` 速查表完全一致
@@ -95,7 +95,7 @@
 ```markdown
 ### 位置 [N]（[位置名]）：[中文名]（[英文名] · [正/逆位]）
 
-![中文名](assets/cards/{major|minor}/{slug}.webp)
+![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)
 
 - 元素: [火/水/风/土]
 - 数字: [0-21 / 1-14]

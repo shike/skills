@@ -229,7 +229,7 @@ def check_examples_completeness() -> None:
             ok(f"example: {prefix}")
         else:
             err(f"example 缺失: {prefix}")
-    # 含图检查（每个 example 必须有 ![XX](assets/cards/...) 引用）
+    # 含图检查（兼容本地路径 + jsdelivr URL 两种格式）
     expected_images = {
         "case-001": 1,  # 至少 1 张图（揭晓 + 单牌）
         "case-002": 20, # 揭晓 10 + 单牌 10
@@ -239,9 +239,10 @@ def check_examples_completeness() -> None:
         for prefix, min_count in expected_images.items():
             if f.name.startswith(prefix):
                 text = f.read_text(encoding="utf-8")
-                img_count = len(re.findall(r"!\[.*?\]\(assets/cards/", text))
+                # 兼容 ![XX](assets/cards/...) 和 ![XX](https://.../assets/cards/...)
+                img_count = len(re.findall(r"!\[.*?\]\([^)]*assets/cards/", text))
                 if img_count >= min_count:
-                    ok(f"{prefix} 含图 {img_count} 张（≥ {min_count}）")
+                    ok(f"{prefix} 含图 {img_count} 张（≥ {min_count}，本地/URL 兼容）")
                 else:
                     err(f"{prefix} 图数 {img_count}（应 ≥ {min_count}）")
 

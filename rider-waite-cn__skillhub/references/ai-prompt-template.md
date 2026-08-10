@@ -59,15 +59,15 @@
 "你选的是：
 
 **位置 1（现状）**：[中文名]（[英文名] · [正/逆位]）
-![中文名](assets/cards/{major|minor}/{slug}.webp)
+![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)
 
 **位置 2（挑战）**：[中文名]（[英文名] · [正/逆位]）
-![中文名](assets/cards/{major|minor}/{slug}.webp)
+![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)
 
 ..."
 
 **插图规则**:
-- 每张抽到的牌**必须**在揭晓段附 `![中文名](assets/cards/{major|minor}/{slug}.webp)`
+- 每张抽到的牌**必须**在揭晓段附 `![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)`
 - slug 必须与 references/78-cards.md 速查表完全一致（如 `the-fool.webp` / `wands-1.webp`）
 - 单牌解读段（Step 2）按 intensity 选择性插图（light/standard 每张都插；deep 每 2-3 张插 1 张图）
 - 图加载失败 → 退化为文字牌 `**[XX牌 · 正位]**`，不阻断解读

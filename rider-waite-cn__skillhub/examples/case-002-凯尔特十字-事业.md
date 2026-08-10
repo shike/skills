@@ -61,43 +61,43 @@
 
 **位置 1（现状）**：魔术师（The Magician · 正位）
 
-![魔术师](assets/cards/major/the-magician.webp)
+![魔术师](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-magician.webp)
 
 **位置 2（挑战）**：权杖五（Five of Wands · 正位）
 
-![权杖五](assets/cards/minor/wands-5.webp)
+![权杖五](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-5.webp)
 
 **位置 3（过去）**：圣杯四（Four of Cups · 逆位）
 
-![圣杯四](assets/cards/minor/cups-4.webp)
+![圣杯四](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/cups-4.webp)
 
 **位置 4（近期未来）**：权杖三（Three of Wands · 正位）
 
-![权杖三](assets/cards/minor/wands-3.webp)
+![权杖三](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-3.webp)
 
 **位置 5（潜意识）**：圣杯骑士（Knight of Cups · 逆位）
 
-![圣杯骑士](assets/cards/minor/cups-12.webp)
+![圣杯骑士](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/cups-12.webp)
 
 **位置 6（近期过去）**：宝剑七（Seven of Swords · 逆位）
 
-![宝剑七](assets/cards/minor/swords-7.webp)
+![宝剑七](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/swords-7.webp)
 
 **位置 7（自我）**：星币国王（King of Pentacles · 正位）
 
-![星币国王](assets/cards/minor/pentacles-14.webp)
+![星币国王](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/pentacles-14.webp)
 
 **位置 8（环境）**：塔（The Tower · 逆位）
 
-![塔](assets/cards/major/the-tower.webp)
+![塔](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-tower.webp)
 
 **位置 9（希望/恐惧）**：星星（The Star · 正位）
 
-![星星](assets/cards/major/the-star.webp)
+![星星](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-star.webp)
 
 **位置 10（最终结果）**：权杖八（Eight of Wands · 正位）
 
-![权杖八](assets/cards/minor/wands-8.webp)
+![权杖八](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-8.webp)
 
 ---
 
@@ -105,7 +105,7 @@
 
 ### 位置 1（现状）：魔术师（The Magician · 正位）
 
-![魔术师](assets/cards/major/the-magician.webp)
+![魔术师](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-magician.webp)
 
 
 - 元素: 风 | 数字: 1
@@ -116,7 +116,7 @@
 
 ### 位置 2（挑战）：权杖五（Five of Wands · 正位）
 
-![权杖五](assets/cards/minor/wands-5.webp)
+![权杖五](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-5.webp)
 
 
 - 元素: 火 | 数字: 5
@@ -127,7 +127,7 @@
 
 ### 位置 3（过去）：圣杯四（Four of Cups · 逆位）
 
-![圣杯四](assets/cards/minor/cups-4.webp)
+![圣杯四](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/cups-4.webp)
 
 
 - 元素: 水 | 数字: 4
@@ -138,7 +138,7 @@
 
 ### 位置 4（近期未来）：权杖三（Three of Wands · 正位）
 
-![权杖三](assets/cards/minor/wands-3.webp)
+![权杖三](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-3.webp)
 
 
 - 元素: 火 | 数字: 3
@@ -149,7 +149,7 @@
 
 ### 位置 5（潜意识）：圣杯骑士（Knight of Cups · 逆位）
 
-![圣杯骑士](assets/cards/minor/cups-12.webp)
+![圣杯骑士](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/cups-12.webp)
 
 
 - 元素: 水 | 数字: 12
@@ -160,7 +160,7 @@
 
 ### 位置 6（近期过去）：宝剑七（Seven of Swords · 逆位）
 
-![宝剑七](assets/cards/minor/swords-7.webp)
+![宝剑七](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/swords-7.webp)
 
 
 - 元素: 风 | 数字: 7
@@ -171,7 +171,7 @@
 
 ### 位置 7（自我）：星币国王（King of Pentacles · 正位）
 
-![星币国王](assets/cards/minor/pentacles-14.webp)
+![星币国王](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/pentacles-14.webp)
 
 
 - 元素: 土 | 数字: 14
@@ -182,7 +182,7 @@
 
 ### 位置 8（环境）：塔（The Tower · 逆位）
 
-![塔（](assets/cards/major/the-tower.webp)
+![塔（](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-tower.webp)
 
 
 - 元素: 火 | 数字: 16
@@ -193,7 +193,7 @@
 
 ### 位置 9（希望/恐惧）：星星（The Star · 正位）
 
-![星星（](assets/cards/major/the-star.webp)
+![星星（](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-star.webp)
 
 
 - 元素: 风 | 数字: 17
@@ -204,7 +204,7 @@
 
 ### 位置 10（最终结果）：权杖八（Eight of Wands · 正位）
 
-![权杖八](assets/cards/minor/wands-8.webp)
+![权杖八](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/minor/wands-8.webp)
 
 
 - 元素: 火 | 数字: 8

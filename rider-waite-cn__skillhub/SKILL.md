@@ -166,19 +166,19 @@ LLM 把每张 [背] 替换为具体牌（位置 + 中文名 + 正逆位 + 牌图
 你选的是：
 
 **位置 1（现状）**：愚者（The Fool · 正位）
-![愚者](assets/cards/major/the-fool.webp)
+![愚者](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-fool.webp)
 
 **位置 2（挑战）**：魔术师（The Magician · 逆位）
-![魔术师](assets/cards/major/the-magician.webp)
+![魔术师](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-magician.webp)
 
 **位置 3（过去）**：女祭司（The High Priestess · 正位）
-![女祭司](assets/cards/major/the-high-priestess.webp)
+![女祭司](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-high-priestess.webp)
 
 ...
 ```
 
 **插图规则（Hard Constraint）**：
-- 每张抽到的牌**必须**在揭晓段附 `![中文名](assets/cards/{major|minor}/{slug}.webp)`
+- 每张抽到的牌**必须**在揭晓段附 `![中文名](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/{major|minor}/{slug}.webp)`
 - 大阿卡纳图路径：`assets/cards/major/{slug}.webp`（slug 见 `references/78-cards.md` 速查表）
 - 小阿卡纳图路径：`assets/cards/minor/{slug}.webp`（如 `wands-1.webp` / `cups-7.webp`）
 - 单牌解读段（Step 2）按 intensity 选择性插图（见 §Step 2）
@@ -210,7 +210,7 @@ LLM 在揭晓后输出该次抽卡的「元素 / 数字 / 宫廷牌分布」小�
 ```
 ### 位置 1（现状）：愚者（The Fool · 正位）
 
-![愚者](assets/cards/major/the-fool.webp)
+![愚者](https://cdn.jsdelivr.net/gh/shike/location-skill@main/rider-waite-cn__skillhub/assets/cards/major/the-fool.webp)
 
 - 元素：风 · 数字：0
 - 关键词：新开始、纯真、自由、冒险、未知
