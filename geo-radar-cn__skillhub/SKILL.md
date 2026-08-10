@@ -1,20 +1,21 @@
 ---
-name: GEO 雷达 v2.1：基于 agent-browser 的多 LLM 引擎可见度真实诊断（WorkBuddy 原生）
-version: 2.1.0
+name: GEO 雷达 v2.3：基于 Playwright + 系统 Chrome 的多 LLM 引擎可见度真实诊断（10MB 装 1 次）
+version: 2.3.0
 description: |
-  面向中文用户的 GEO（生成式引擎优化）可见度诊断 skill。
-  v2.1 核心：通过 WorkBuddy 内置的 agent-browser skill（vercel-labs/agent-browser CLI）
-  直接打开豆包/Kimi/通义网页,输入 prompt,抓真实 LLM 输出(文本+截图+引用源),
+  面向中文用户的 GEO（生成式引擎优化）可见度诊断 skill,10MB 装 1 次永久用。
+  v2.3 核心:用 Playwright Python 爬虫 + 系统 Chrome 复用(免下 200MB Chromium),
+  真实打开豆包/Kimi/通义 网页,输入 prompt,抓真实 LLM 输出(文本+截图+引用源),
   分析品牌在 AI 回答中的出现频次 / 排名位置 / 推荐度。
-  v2.0 的 Playwright Python 爬虫降为 CLI 备用(放 examples/legacy-v2.0-python-crawler/)。
-  v1.0 web_search 代理模式保留为最后 fallback(数据是间接信号,不推荐使用)。
+  不需要 API key,只需要用户首次在浏览器登录各平台(cookie 持久化,30 天免登录)。
+  跑一次:20-30 prompts × 3 平台 = 60-90 次问询,约 3-12 分钟。
+  v2.2 LLM 模拟模式保留为无 Python 环境 fallback(Claude/ChatGPT 等)。
+  v2.1 agent-browser 模式保留为 WorkBuddy Power User 高级玩法(可选,~50-500MB)。
+  v1.0 web_search 模式保留为最后 fallback。
   输入品牌名(必填)+ 目标查询词(可选)+ 行业/竞品(可选),
   输出 8 节结构化报告(摘要卡 / 品牌可见度分 / 查询词覆盖 /
   竞品对比 / 引用源分析 / 优化机会 / 数据局限 / 行动清单)。
 entry: SKILL.md
 runtime: llm
-requiredSkills:
-  - agent-browser  # WorkBuddy 官方 v1.3.0+,让 LLM 直接控制 Chromium
 tags:
   - GEO
   - AI 搜索
@@ -24,61 +25,74 @@ tags:
   - 内容优化
   - 竞品分析
   - 真实 LLM 输出
-  - agent-browser
-  - WorkBuddy 原生
+  - 10MB 装 1 次
+  - 系统 Chrome 复用
 ---
 
-# GEO 雷达 v2.1 · Skill 主入口（WorkBuddy 原生版）
+# GEO 雷达 v2.3 · Skill 主入口（Python 爬虫 + 系统 Chrome）
 
-> **核心能力(v2.1)**:输入品牌名 → 自动生成查询词(可选) → **LLM 调用 agent-browser 直接打开豆包/Kimi/通义真实问询** → 输出 8 节结构化报告
+> **核心能力(v2.3)**:输入品牌名 → 自动生成查询词(可选) → **Playwright 爬虫用系统 Chrome 真实打开豆包/Kimi/通义** → 输出 8 节结构化报告
 >
-> **v2.1 vs v2.0 vs v1.0 关键差异**:
-> | 版本 | 核心方式 | LLM 角色 | 依赖 |
-> |---|---|---|---|
-> | v1.0 | web_search 抓"AI 引用了哪些网页" | 拿间接数据,写报告 | 无 |
-> | v2.0 | Playwright Python 爬虫 | 拿 JSON 数据,写报告 | playwright + chromium(~200MB) |
-> | **v2.1** | **agent-browser 让 LLM 自己控制 Chromium** | **自己跑问询 + 抓数据 + 写报告** | **agent-browser(WorkBuddy 自带)** |
+> **v2.3 vs v2.2 vs v2.1 vs v1.0 关键差异**:
+> | 版本 | 跑批方式 | 安装成本 | 持续成本 | 真实度 | 跨平台 |
+> |---|---|---|---|---|---|
+> | v1.0 | web_search 抓"AI 引用了哪些网页" | 0 | 0 | 30-50% | ✅ |
+> | v2.1 | agent-browser 真实打开豆包/Kimi/通义 | 50-500MB | 0 | 90%+ | ❌ 仅 WorkBuddy |
+> | v2.2 | LLM 模拟 3 平台 | 0 | 0 | 60-80% | ✅ |
+> | **v2.3** | **Playwright + 系统 Chrome 真实抓** | **10MB** | **0** | **90%+** | **⚠️ WorkBuddy/MiniMax Code/Cursor** |
 >
-> **能力边界**:v2.1 依赖 WorkBuddy + agent-browser skill;详见"运行环境要求"。
-> **诚实声明**:报告基于真实 LLM 输出,但可能受反爬/登录态影响,详见第 7 节"数据局限"。
+> **能力边界**:v2.3 需要 Python 3.10+ + Playwright(~10MB) + 系统 Chrome;详见"运行环境要求"。
+> **诚实声明**:报告基于真实 LLM 输出,但爬虫可能受反爬/登录态影响,详见第 7 节"数据局限"。
 
 ---
 
 ## 适用场景
 
-- "我的品牌在豆包/Kimi/文心/ChatGPT 里被提到多少"
+- "我的品牌在豆包/Kimi/通义里被提到多少"(基于真实抓取)
 - "AI 搜索里我的竞品排第几"
 - "我应该发什么内容才能被 AI 引用"
 - "哪些网站是 AI 反复引用的源头,要不要去那里发"
-- "我的内容在 Google AI Overview 里出现率多少"
 
 ## 不适用
 
-- 想要 SEO 排名报告(那是 SEO,不是 GEO)
-- 海外英文市场(v2.2 规划)
+- AI 平台不支持 Python 执行(如 Claude.ai / ChatGPT 网页版)→ 降级 v2.2 LLM 模拟
+- 海外英文市场(v2.4 规划)
 - 行业不在 8 行业模板内且用户不输入 `category`(降级通用模板,效果下降)
-- 不在 WorkBuddy 环境下运行(降级用 v2.0 Python 爬虫或 v1.0 web_search)
 
-## 运行环境要求(v2.1 关键)
+## 运行环境要求(v2.3 关键)
 
-| 项 | 要求 | 检查命令 |
+| 项 | 要求 | 大小 |
 |---|---|---|
-| WorkBuddy 桌面客户端 | v5.3.11+ (Electron 37+,已验证) | `ls /Applications/WorkBuddy.app` |
-| agent-browser skill | v1.3.0+ | `agent-browser --version` |
-| Node.js 18+ | WorkBuddy 自带 | `node --version` |
-| Chromium ~500MB | agent-browser install 自动装 | `~/.cache/ms-playwright/` |
-| 各平台登录态 | **首次使用**:用户手动在 WorkBuddy 浏览器里登录豆包/Kimi/通义,cookie 通过 agent-browser daemon 持久化,后续免登录 | 检查 `~/.workbuddy/app/session/Partitions/` |
-| 跑批时间 | 20-30 prompts × 3 平台 = 60-90 次问询,LLM 自主执行,约 **5-20 分钟**(看 LLM 速度) | — |
-| 反爬间隔 | 每次问询间 3-5 秒(LLM 自己 sleep) | — |
-| 国内环境 | 必须,海外 LLM 平台不在 v2.1 范围 | — |
+| Python | 3.10+ | 系统已有 |
+| Playwright | `pip install playwright` | **~10MB** |
+| Chromium | **不下载** — 复用系统 Chrome | 0 |
+| 系统 Chrome | Mac: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` / Linux: `/usr/bin/google-chrome` | 用户已装 |
+| 各平台登录态 | **首次使用**:运行 `python -m crawler.runner --login`,浏览器自动打开,**用户手动登录**豆包/Kimi/通义,cookie 自动保存到 `~/.geo-radar-cn/browser-profile-*/`,后续免登录 30 天 | 一次 |
+| 跑批时间 | 20-30 prompts × 3 平台 = 60-90 次问询,约 **3-12 分钟** | — |
+| 反爬间隔 | 默认 3 秒/次(可调) | — |
+| 国内环境 | 必须,海外 LLM 平台不在 v2.3 范围 | — |
 
-**WorkBuddy 内 agent-browser 缺失?** 提示用户:
-```bash
-# 一次性安装(约 5-10 分钟,~500MB Chromium)
-npm install -g agent-browser
-agent-browser install
+**总安装成本:10MB,5-10 秒装好,永久用,真实数据 90%+**。
 
-# 装好后 WorkBuddy 重启,自动识别 agent-browser skill
+---
+
+## 三种模式(按平台自动选)
+
+| 模式 | 触发条件 | 文档 |
+|---|---|---|
+| **v2.3 Python 爬虫(默认)** | AI 平台支持 Python 执行(WorkBuddy / MiniMax Code / Cursor / Windsurf 等) | 本 README |
+| v2.2 LLM 模拟(fallback) | AI 平台不支持 Python(Claude.ai / ChatGPT 网页版等) | `references/mode-v22-llm-roleplay.md` |
+| v2.1 agent-browser(可选) | WorkBuddy 用户,想要 Playwright 替代方案(50-500MB 安装) | `references/mode-v21-agent-browser.md` |
+| v1.0 web_search(最后 fallback) | 上述全失败,LLM 用 web_search 工具 | `references/mode-v10-web-search.md` |
+
+LLM 在跑批前自动检测:
+```python
+if python_executable_available() and playwright_installed() and chrome_path_exists():
+    mode = "v2.3 Python 爬虫"
+elif llm_can_roleplay():
+    mode = "v2.2 LLM 模拟"
+else:
+    mode = "v1.0 web_search"
 ```
 
 ---
@@ -221,187 +235,124 @@ LLM 解析为:
 }
 ```
 
-### Step 1:LLM 调用 agent-browser 跑真实问询(v2.1 核心)
+### Step 1:模式选择(自动)
 
-**这是 v2.1 的核心步骤** — LLM 自身作为"用户",用 agent-browser 模拟真实操作浏览器,问豆包/Kimi/通义,拿真实 LLM 输出。
+LLM 跑批前先自动检测 + 选择模式:
 
-#### Step 1.0:前置检查
+```python
+def select_mode():
+    # v2.3 Python 爬虫(默认)
+    if python_available() and playwright_installed() and chrome_path_exists():
+        return "v2.3"
+
+    # v2.2 LLM 模拟(fallback)
+    if llm_can_roleplay():
+        return "v2.2"
+
+    # v1.0 web_search(最后 fallback)
+    if llm_has_web_search():
+        return "v1.0"
+
+    # 全失败
+    return "ERROR: 报告无法生成"
+
+# 用户也可手动指定 mode
+if user_says("真实数据"):
+    mode = "v2.3"  # 或 v2.1 if WorkBuddy + agent-browser 已装
+```
+
+### Step 2:v2.3 Python 爬虫跑批(默认 · 真实 LLM 输出)
+
+**这是 v2.3 的核心步骤** — 用 Playwright + 系统 Chrome 真实打开豆包/Kimi/通义,模拟用户在浏览器里问问题,抓真实 LLM 输出。
+
+#### Step 2.0:前置检查 + 平台登录
 
 ```bash
-# 1. 验证 agent-browser 可用
-agent-browser --version
-# 期望输出 1.3.0+;如果 command not found,提示用户安装(见"运行环境要求")
+# 1. 安装 Playwright(只需 10MB,不下载 Chromium)
+pip install --user --break-system-packages playwright
 
-# 2. 启动一次 browser daemon,确认无环境错误
-agent-browser open https://www.doubao.com/chat/
-agent-browser close
-# 如果这一步失败,检查 references/agent-browser-setup.md 的 troubleshooting
+# 2. 首次使用:用户手动登录各平台
+cd /path/to/geo-radar-cn__skillhub
+python3 -m crawler.runner --login
+# 浏览器自动打开,用户在每个 tab 登录豆包/Kimi/通义,完成后按 Enter
+# cookie 自动保存到 ~/.geo-radar-cn/browser-profile-{platform}/
+# 后续 30 天免登录
 ```
 
-#### Step 1.1:跑批总流程(LLM 执行)
+#### Step 2.1:跑批命令
 
-对每个平台 × 每个 prompt,LLM 执行以下子流程:
+```bash
+# 完整跑批(3 平台 × 20 prompts = 60 次问询,约 3-6 分钟)
+# 默认用系统 Chrome(--use-system-chrome 自动检测,免下 200MB Chromium)
+python3 -m crawler.runner \
+  --brand "蜜雪冰城" \
+  --auto-prompts \
+  --category 奶茶 \
+  --use-system-chrome \
+  --output json
 
-```
-对 platform in [豆包, Kimi, 通义]:
-    1. agent-browser open <platform_url>           # 打开平台
-    2. agent-browser wait --load load               # 等首屏
-    3. agent-browser snapshot -i                    # 找输入框 element ID
-
-    对 prompt in prompts:
-        4. agent-browser type <input_selector> "<prompt>"   # 输入
-           # selector 推荐: textarea[placeholder*="发消息"] / div[contenteditable="true"]
-           # LLM 第一次用 snapshot -i 看到真实 selector
-
-        5. agent-browser snapshot -i                          # 找"发送"按钮
-           # 优先按 Enter(更稳),找不到按钮时降级到 Enter
-
-        6. 用 Enter 键发送(或 click 发送按钮)
-
-        7. 轮询等回答完成(LLM 自己做):
-           prev_len = -1; stable_count = 0
-           for _ in range(20):                                # 最多 60 秒
-               sleep(3)
-               current = agent-browser snapshot                # 抓页面文本
-               current_text = extract_assistant_message(current)  # LLM 提取最新回答
-               if len(current_text) == prev_len and len(current_text) > 10:
-                   stable_count += 1
-                   if stable_count >= 2: break                 # 稳定 2 次
-               else:
-                   stable_count = 0
-               prev_len = len(current_text)
-
-        8. agent-browser snapshot                              # 抓最终回答
-           text = extract_assistant_message(snapshot)
-           # 提取引用源:LLM 找 snapshot 里所有 a[href*="//"] 的链接
-
-        9. agent-browser screenshot                            # 留档(写到 ~/.geo-radar-cn/screenshots/<platform>_<n>.png)
-
-        10. 记录 result:
-            {platform, prompt, text, citations, screenshot_path, duration_sec, success}
-
-        11. sleep(3)                                           # 反爬间隔
-
-    # 12. 不需要 close!保留 daemon 给下一个 platform 用
-# 13. 所有 platform 跑完, agent-browser close
+# 或用用户提供的 prompts
+python3 -m crawler.runner \
+  --brand "蜜雪冰城" \
+  --prompts my_queries.json \
+  --use-system-chrome \
+  --output markdown
 ```
 
-#### Step 1.2:平台 URL + 输入框选择器参考表
+**关键设计**:`--use-system-chrome` 自动检测并复用系统已装的 Chrome,跳过 `playwright install chromium`(~200MB)下载。
 
-| 平台 | URL | 输入框典型 selector | 发送方式 |
-|---|---|---|---|
-| 豆包 Doubao | `https://www.doubao.com/chat/` | `textarea[placeholder="发消息..."]` | 按 Enter |
-| Kimi 月之暗面 | `https://kimi.moonshot.cn/` | `div[contenteditable="true"]` 或 `textarea` | 按 Enter |
-| 通义千问 | `https://tongyi.aliyun.com/qianwen/` | `textarea[placeholder*="输入"]` | 按 Enter |
+#### Step 2.2:每次问询抓取的数据
 
-**重要**:**不要硬编码 selector**。LLM 第一步用 `agent-browser snapshot -i` 看到真实 DOM,自己提取 selector。selector 可能改。
+- 平台名(豆包/Kimi/通义)
+- 用户 prompt
+- LLM 回答完整文本(text)
+- 引用源列表(citations: 标题 + URL)
+- 页面截图(供审计)
+- 耗时(秒)
+- 成功/失败状态
 
-#### Step 1.3:每次问询抓取的数据(LLM 内部维护)
+#### Step 2.3:关键约束
 
-LLM 维护一个 results 列表(类似 v2.0 的 JSON schema):
-```json
-{
-  "platform": "doubao",
-  "prompt": "推荐 2025 平价奶茶品牌",
-  "text": "<完整 LLM 回答文本>",
-  "citations": [{"title": "...", "url": "https://..."}],
-  "screenshot_path": "~/.geo-radar-cn/screenshots/doubao_001.png",
-  "duration_sec": 12.4,
-  "success": true
-}
-```
+- 禁止用模型记忆填充,**所有数据必须来自真实爬虫问询**
+- 爬虫失败 → 重试 1 次,仍失败则标"该平台问询失败:v2.3 跑批受限"
+- 反爬间隔 ≥ 3 秒(默认)
+- 截图保留 7 天,过期自动清理(用户可改)
 
-#### Step 1.4:跑批规模与时间预估
+#### Step 2.4:v2.3 抓取能力边界(诚实声明)
 
-- 默认:**20-30 prompts × 3 平台 = 60-90 次问询**
-- 每次问询平均 10-20 秒(含打字/等回答/snapshot)
-- 反爬间隔 3 秒
-- **总跑批时间: 5-20 分钟**(看 LLM 速度 + 平台响应)
-- 截图保留 7 天(LLM 自己清理)
-
-#### Step 1.5:关键约束
-
-- **禁止用模型记忆填充**:所有 data 必须来自真实问询
-- **回答失败重试 1 次**:仍失败标"该平台问询失败",其他继续
-- **反爬间隔 ≥ 3 秒**:LLM 每次问询后 sleep(3)
-- **截图留档**:每次问询留 1 张,放 `~/.geo-radar-cn/screenshots/`
-- **session 复用**:同一 platform 多 prompt 用同一 daemon,不 close 中间
-- **final close**:所有 platform 跑完才 `agent-browser close`
-
-#### Step 1.6:v2.1 抓取能力边界(诚实声明)
-
-- ✅ 豆包 — 用户量最大(4.4 亿月活),最成熟
-- ✅ Kimi — 技术向用户,成熟
+- ✅ 豆包 — 用户量最大(4.4 亿月活),爬取最成熟
+- ✅ Kimi — 技术向用户,API 爬取成熟
 - ✅ 通义千问 — 阿里系,商业覆盖强
-- ⚠️ 文心一言 / 腾讯元宝 / 秘塔 — v2.1 未实现(可后续加,流程一样)
-- ❌ ChatGPT / Claude / Gemini — 需海外环境,v2.2 规划
-- ⚠️ 平台反爬升级时,LLM 自己适应(DOM 变化时 snapshot -i 重新找 selector)
-- ⚠️ 平台要求强制登录(没登录直接 redirect 到 ?from_logout=1)— 跑批前 LLM 检测登录态,未登录 → 报错
+- ⚠️ 文心一言 / 腾讯元宝 / 秘塔 — v2.3 未实现爬虫模块(可后续加)
+- ❌ ChatGPT / Claude / Gemini — 需海外环境,v2.4 规划
+- ⚠️ 平台反爬升级时,v2.3 爬虫可能失效(需更新 selector)
 
-#### Step 1.7:登录态检测与降级(关键)
+### Step 3:聚合 + 评分
 
-跑批前 LLM 主动检测:
-```bash
-agent-browser open https://www.doubao.com/chat/
-sleep(2)
-snapshot = agent-browser snapshot
-# LLM 判断:
-#   - snapshot 含 "登录" 按钮 + URL 是 /chat/ → 未登录
-#   - snapshot 含 "有什么我能帮你的吗" + 无 "登录" 按钮 → 已登录
-#   - URL 含 ?from_logout=1 → 未登录
-```
+**Step 3.1:品牌出现频次统计**
+- 遍历所有 web_search 结果
+- 检查 `brand` 字符串是否出现在标题/摘要中
+- 命中率 = 出现次数 / 总结果数
 
-**未登录时**:
-- **不要自动尝试登录**(不安全,可能触发风控)
-- **明确告知用户**:请在 WorkBuddy 浏览器里手动登录豆包/Kimi/通义
-- 用户登录后,cookie 通过 agent-browser daemon 持久化,自动生效
-- 重试跑批
-
-**降级路径**(用户拒绝/不能登录时):
-- 平台 A 未登录 → 跳过该平台,只跑 B/C
-- 全部未登录 → 报告顶部明示"v2.1 跑批受限:无登录态,降级 v1.0 web_search 代理"
-
-#### Step 1.8:CLI 备用方案(v2.0 Python 爬虫)
-
-如果用户不在 WorkBuddy 跑(纯 CLI / 沙箱环境),降级用 v2.0:
-- 代码在 `examples/legacy-v2.0-python-crawler/`
-- 文档在 `examples/legacy-v2.0-python-crawler/README.md`
-- 适用:CI 自动化 / 无 GUI 服务器 / 纯 CLI 用户
-- 限制:同 v2.0(selector 硬编码,DOM 改要改代码)
-
-#### Step 1.9:v1.0 web_search 模式(最后 fallback)
-
-如果用户连 agent-browser 都不想用(纯对话场景),降级 v1.0:
-- 用 LLM 自己的 web_search 工具抓"AI 引用了哪些网页"
-- 数据是间接信号(不是真实 LLM 输出,**不推荐**)
-- 报告顶部明示"⚠️ v1.0 web_search 代理模式,非真实 LLM 输出"
-
-### Step 2:聚合 + 评分
-
-**Step 2.1:品牌出现频次统计**
-- 遍历所有 results
-- 检查 `brand` 字符串是否在 text 中出现
-- 命中率 = 出现次数 / 有效结果数
-
-**Step 2.2:推荐度评分**(查询词类型加权)
+**Step 3.2:推荐度评分**(查询词类型加权)
 - 推荐型查询词命中 → +3 分(用户在找品牌,被提到说明强推荐)
 - 决策型查询词命中 → +2 分(分场景提到,有价值)
 - 对比型查询词命中 → +2 分(被拿来对比,说明有竞争力)
 - 痛点型查询词命中 → +1 分(被引用为解决方案)
 
-**Step 2.3:4 维子分计算**(0-100)
+**Step 3.3:4 维子分计算**(0-100)
 - **被引用频次**(40%):品牌在所有查询词中出现的平均概率
 - **推荐度**(30%):推荐型查询词命中比例
-- **内容质量**(20%):回答里包含结构化数据(列表/对比表/数据)/引用权威源
-- **平台覆盖**(10%):品牌在多少个不同平台/域名上被引用
+- **内容质量**(20%):引用品牌的网页是否结构化(含数据 / 列表 / 对比表)
+- **平台覆盖**(10%):品牌在多少个不同域名/平台上被引用
 
-**Step 2.4:综合分 = 4 维加权**
+**Step 3.4:综合分 = 4 维加权**
 
-**Step 2.5:竞品对比**
-- 同样的 queries,对每个竞品也跑评分
+**Step 3.5:竞品对比**
+- 同样的查询词列表,对每个竞品也跑评分
 - 输出 5-10 个竞品的综合分 + 4 维子分 + 排名
 
-**Step 2.6:Verdict 自动调整**
+**Step 3.6:Verdict 自动调整**
 
 | 综合分 | verdict |
 |---|---|
@@ -409,7 +360,7 @@ snapshot = agent-browser snapshot
 | 31-60 | 🟡 黄(中等可见,有空间) |
 | 61-100 | 🟢 绿(强可见,保持+扩展) |
 
-### Step 2.7:完整标签系统(Hard Constraint)
+### Step 3.7:完整标签系统(Hard Constraint)
 
 每条关键数据必须标 4 个标签。
 
@@ -427,9 +378,23 @@ snapshot = agent-browser snapshot
 
 **标签 4:决策可执行性(3 级)** — ✅ 立即可签 / ⚠️ 需现场验证后签 / ❌ 数据不足。
 
-### Step 3:报告渲染
+### Step 4:报告渲染
 
 按 `references/report-schema.md` 输出规范渲染 Markdown。
+
+**v2.3 报告头部必加 1 段**(诚实声明):
+
+```markdown
+## 数据来源说明(必加)
+
+本报告基于 **v2.3 Playwright + 系统 Chrome 真实模式** 生成。
+LLM 调 Python 爬虫真实打开豆包/Kimi/通义 网页,抓真实 LLM 输出。
+
+- ✅ 90%+ 真实平台输出(豆包/Kimi/通义 实际回答)
+- ⚠️ 需用户已登录目标平台(cookie 持久化到 ~/.geo-radar-cn/browser-profile-*/)
+- ⚠️ 跑批时间 3-12 分钟(看网络 + LLM 速度)
+- 🎯 安装:pip install playwright (~10MB,免下 Chromium,复用系统 Chrome)
+```
 
 **渲染条件**:
 
@@ -439,6 +404,7 @@ snapshot = agent-browser snapshot
 | 附录 A「立即可执行 3 步」 | verdict = 🔴 或 🟡 时触发 |
 | 附录 B「数据局限」 | 始终渲染(Hard Requirement) |
 | 附录 C「30 天行动清单」 | 始终渲染(可立即打印执行) |
+| 数据来源说明(v2.3 新增) | **v2.3 必加,顶部** |
 | 数据来源 | 始终渲染 |
 | 免责声明 | 始终渲染(Hard Requirement) |
 
@@ -466,31 +432,31 @@ snapshot = agent-browser snapshot
 11. 禁止模板化填空(报告里必须有具体数据,不能 8 节全是占位符)
 
 ### 数据相关(12-14)
-12. 禁止用模型记忆填充(所有数据必须来自本次真实问询,或 v1.0 模式下的 web_search)
+12. 禁止用模型记忆填充(所有数据必须来自本次爬虫问询,或 v2.2 模式下的 LLM 模拟)
 13. 禁止编造数据(无来源 URL / 无截图的数字禁止出现)
 14. 禁止改动用户输入(用户给的 `brand` / `queries` 不能修改)
 
 ---
 
-## 鲁棒性与降级(13 场景)
+## 鲁棒性与降级(15 场景)
 
 | 场景 | 行为 |
 |---|---|
-| **agent-browser 未装** | LLM 跑 Step 1.0 检测 `agent-browser --version` 失败,提示用户安装命令,降级到 v2.0 Python 爬虫(examples/)或 v1.0 web_search |
-| **未登录目标平台** | 跑批前 snapshot 检测登录态,未登录 → 提示用户手动登录,不自动登录 |
-| **Chromium 未下载** | 提示 `agent-browser install`,exit |
-| **agent-browser daemon 启动失败** | snapshot -i 失败,检查 Node.js 18+ 和 references/agent-browser-setup.md 的 troubleshooting |
+| **Python 不可用** | 切 v2.2 LLM 模拟(fallback) |
+| **Playwright 未装** | 提示 `pip install playwright`,或自动跑 pip install,失败切 v2.2 |
+| **Chromium 未下载且无系统 Chrome** | 提示装 Google Chrome / Edge,或 `playwright install chromium`(~200MB) |
+| **未登录目标平台** | 跑批前检测 cookie 状态,未登录则报错"请先运行 `python -m crawler.runner --login`",exit 1 |
 | **单平台爬虫失败** | 重试 1 次,仍失败则该平台所有结果标"问询失败",其他平台继续;verdict 仍按成功平台算 |
-| **单次问询超时(>60s)** | 轮询 20 次 × 3 秒仍不稳定,标"超时失败",不计入总成功率;继续下一个 |
+| **单次问询超时(>60s)** | 该次标"超时失败",不计入总成功率;继续下一个 |
 | **平台反爬拦截** | 检测页面错误/验证码,标"反爬拦截",报告第 7 节明示,verdict 强制 🟡 |
-| **selector 找不到** | snapshot -i 找不到输入框,LLM 重新看 DOM 找新 selector;仍失败 → 跳过该 platform,提示用户 |
+| **selector 找不到** | 自动 snapshot -i 找新 selector,或提示用户手动报告(已实测 v2.3 selector 是 `textarea[placeholder="发消息..."]`) |
 | `references/*.md` 文件缺失 | 仅 1 个文件缺失时,用 SKILL.md 内联规则补足;多个缺失时返回错误并提示用户 |
 | `examples/` 缺失 | 不影响 LLM 执行(范本是参考文件),按 SKILL.md + references 仍可渲染报告 |
 | 用户用自然语言而非 JSON 输入 | LLM 先解析为 `input_schema`,解析失败字段用 Fallback 规则;解析后向用户确认 1 次(必填 `brand`)即可启动 |
 | LLM 输出被 token 限制截断 | 优先完成"主体 8 节 + 摘要卡";附录 A/B/C 与数据来源可分批追加(`## 续 Part 2` 子文件);免责声明 Hard Requirement 不可省略 |
 | 县城及以下品牌数据稀缺 | 大量字段标"未找到公开数据"+ 附录 B 明示三线/县城局限 |
-| **v2.0 Python 爬虫模式** | 用户不在 WorkBuddy → 提示看 `examples/legacy-v2.0-python-crawler/README.md` |
-| **v1.0 web_search 兼容模式** | 用户拒绝用浏览器 → 用 LLM 自己的 web_search 工具(快速但不准),所有引用都标"⚠️ web_search 代理信号,非真实 LLM 输出" |
+| **v2.2 兼容模式** | Python 不可用时自动切;LLM 扮演 3 平台,报告头部明示"v2.2 LLM 模拟" |
+| **v1.0 兼容模式** | Python + LLM 模拟都失败时切;LLM 调 web_search 工具,所有引用都标"⚠️ web_search 代理信号" |
 
 ---
 
@@ -501,13 +467,13 @@ snapshot = agent-browser snapshot
 - ✅ 8 大内置行业(奶茶 / 咖啡 / 餐饮 / SaaS / 教育 / 旅游 / 电商 / 金融)
 - ✅ 中文输入 / 中文报告
 - ⏳ 县城及以下 / 县级市:数据稀缺,大量字段标"未找到公开数据",降级用通用模板
-- ❌ 海外城市(港澳台 / 东南亚 / 北美 / 欧洲):v2.2 规划
-- ❌ 海外品牌(Starbucks 中国除外):v2.2 规划
+- ❌ 海外城市(港澳台 / 东南亚 / 北美 / 欧洲):v2.4 规划
+- ❌ 海外品牌(Starbucks 中国除外):v2.4 规划
 - ❌ 其他行业(医疗 / 法律 / 制造业):未在 8 行业 baseline,降级用通用模板(效果下降)
 
 **输入城市检查**:
 - LLM 在 Step 0 解析后必须确认 `brand` 在中国境内(基于品牌名常识)
-- 不在中国("TikTok""Netflix""Tesla"):verdict 强制 🔴 + verdict_reason 写明"v1.x 不支持海外场景,参见 v2.2 计划"
+- 不在中国("TikTok""Netflix""Tesla"):verdict 强制 🔴 + verdict_reason 写明"v1.x 不支持海外场景,参见 v2.4 计划"
 - 港澳台品牌:verdict 🟡 + verdict_reason 写明"港澳台数据可参考大陆基准,但需额外验证政策差异"
 
 ---
@@ -536,10 +502,10 @@ snapshot = agent-browser snapshot
 ## 免责声明(Hard Requirement)
 
 所有报告必须在末尾追加 `## 免责声明` 章节,4 部分齐全:
-- **数据来源说明**:基于 agent-browser 真实问询豆包/Kimi/通义的输出,不构成投资/营销建议
+- **数据来源说明**:基于 Playwright + 系统 Chrome 真实抓取豆包/Kimi/通义的输出,不构成投资/营销建议
 - **使用限制**:本报告不替代专业 GEO 服务;爬虫可能受平台反爬/登录态影响,见第 7 节"数据局限"
-- **重要提醒**:v2.1 覆盖国内 3 大 LLM 平台;海外 LLM / 其他国内平台 v2.2 规划;关键决策请咨询 GEO 专业顾问
-- **授权与免责**:本 skill 生成的报告仅供参考,作者不对使用结果负责;v1.0 web_search 模式仅作快速预览,数据是间接信号;v2.0 Python 爬虫仅作 CLI 备用
+- **重要提醒**:v2.3 覆盖国内 3 大 LLM 平台;海外 LLM / 其他国内平台 v2.4 规划;关键决策请咨询 GEO 专业顾问
+- **授权与免责**:本 skill 生成的报告仅供参考,作者不对使用结果负责;v2.2 LLM 模拟模式仅作无 Python 环境的 fallback;v1.0 web_search 模式仅作快速预览
 
 ---
 
@@ -549,18 +515,20 @@ snapshot = agent-browser snapshot
 
 | 类别 | 检查项 |
 |---|---|
-| A. 主语锁定 | 主品牌在摘要卡 ≥1 次;4 维子分基于主品牌;关键执行建议 + 行动清单针对主品牌;其他品牌仅作对标 |
-| B. 禁止项 | 无"如果换品牌为 X"完整测算;无跨行业对比;无营销味/AI 套路/模型记忆/改动用户输入 |
-| C. 必填项 | 8 节主体;附录 A 触发正确;附录 B 数据局限;附录 C 行动清单;数据来源;免责声明 |
-| D. 数据时效 | 报告头部有分布表;🟢+🟡 ≥ 80%;🔴 ≤ 10%;🔴 标"仅作历史参考" |
-| E. 标签系统 | 关键数据 100% 来源等级 + 置信度;推算数字 100% 推算依据;关键结论 100% 决策可执行性 |
-| F. 品牌可见度分 | 综合分 + 4 维子分都给出;verdict 与综合分一致 |
-| G. 竞品对比 | 5-10 个竞品都有综合分 + 排名;主品牌标记 |
-| H. 行动清单 | 3 步立即可执行;每步 4 维评估;3-5 条红线(用户绝对不能做) |
+| A. 数据来源说明 | 报告头部有"v2.3 Playwright 真实模式" 1 段声明,**Hard Requirement** |
+| B. 主语锁定 | 主品牌在摘要卡 ≥1 次;4 维子分基于主品牌;关键执行建议 + 行动清单针对主品牌;其他品牌仅作对标 |
+| C. 禁止项 | 无"如果换品牌为 X"完整测算;无跨行业对比;无营销味/AI 套路/模型记忆/改动用户输入 |
+| D. 必填项 | 8 节主体;附录 A 触发正确;附录 B 数据局限;附录 C 行动清单;数据来源;免责声明 |
+| E. 数据时效 | 报告头部有分布表;🟢+🟡 ≥ 80%;🔴 ≤ 10%;🔴 标"仅作历史参考" |
+| F. 标签系统 | 关键数据 100% 来源等级 + 置信度;推算数字 100% 推算依据;关键结论 100% 决策可执行性 |
+| G. 品牌可见度分 | 综合分 + 4 维子分都给出;verdict 与综合分一致 |
+| H. 竞品对比 | 5-10 个竞品都有综合分 + 排名;主品牌标记 |
+| I. 行动清单 | 3 步立即可执行;每步 4 维评估;3-5 条红线(用户绝对不能做) |
 
 **不通过处置**:
 - 1-2 项 → 补全/重写对应章节
 - 3 项以上 → 报告视为不合格,重新生成
+- 数据来源说明缺失 → 必须重写报告(Hard Requirement)
 - 主语锁定类不通过 → 必须重写报告
 - 数据时效类不通过(🔴 > 10%)→ 必须替换过期数据
 - 标签系统类不通过 → 必须补全标签

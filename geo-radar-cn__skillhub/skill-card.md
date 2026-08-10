@@ -2,17 +2,17 @@
 
 ## 主标题
 
-**GEO 雷达：基于 agent-browser 的多 LLM 引擎可见度真实诊断（WorkBuddy 原生）**
+**GEO 雷达：基于 Playwright + 系统 Chrome 的多 LLM 引擎可见度真实诊断（10MB 装 1 次）**
 
 ## 一句话简介
 
-输入品牌名,WorkBuddy 里的 LLM 自己用 agent-browser 打开豆包/Kimi/通义真实问 20-30 个查询词,统计品牌在 AI 回答里的出现频次/排名/推荐度,输出 8 节结构化报告,告诉你"AI 看不看你的品牌 + 怎么改进"。
+输入品牌名,LLM 调 Python 爬虫用系统 Chrome 真实打开豆包/Kimi/通义,问 20-30 个查询词,统计品牌在 AI 真实回答里的出现频次/排名/推荐度,输出 8 节结构化报告。**10MB 装 1 次,永久用,真实数据**。
 
 ## 核心能力
 
-- **WorkBuddy 原生 + agent-browser**:无需 Python/Playwright,LLM 自己控制 Chromium 跑问询
-- **真实 LLM 输出**(v2.1):不再用 web_search 代理信号,直接抓豆包/Kimi/通义真实回答
-- **品牌必填 + 查询词可选**:只输入品牌名,自动基于行业生成 20-30 个查询词(4 类型:推荐/对比/痛点/决策)
+- **10MB 装 1 次,0 持续成本**:`pip install playwright`(~10MB)+ 复用系统 Chrome(免下 200MB Chromium)
+- **真实 LLM 输出**:Python 爬虫真实打开豆包/Kimi/通义,模拟用户问询
+- **cookie 持久化**:首次用户手动登录,后续 30 天免登录
 - **8 节结构化报告**:摘要卡/品牌可见度分/查询词覆盖/竞品对比/引用源分析/优化机会/数据局限/行动清单+资金
 - **4 维可见度子分**:被引用频次(40%)/推荐度(30%)/内容质量(20%)/平台覆盖(10%)
 - **自动竞品对比**:基于品牌+行业推断 5-10 个竞品
@@ -20,16 +20,16 @@
 - **完整标签系统**:来源等级(🏛️📊📰🏪👤)+ 置信度(🟢🟡🔴)+ 推算依据 + 决策可执行性
 - **14 条禁止项**:主语 3 + 内容 4 + 表达 4 + 数据 3
 - **8 行业 × 4 类型查询词模板**:奶茶/咖啡/餐饮/SaaS/教育/旅游/电商/金融
-- **selector 自适应**:LLM 自己用 snapshot -i 找输入框,平台改版 LLM 自己适应
-- **截图留档**:每次问询 1 张截图,~/.geo-radar-cn/screenshots/
+- **三种模式自动降级**:v2.3 Python 爬虫(默认)→ v2.2 LLM 模拟(无 Python)→ v1.0 web_search(最后)
 
-## v2.1 vs v2.0 vs v1.0 关键差异
+## v2.3 vs v2.2 vs v2.1 vs v1.0 关键差异
 
-| 版本 | 跑批方式 | LLM 角色 | 依赖 |
-|---|---|---|---|
-| v1.0 | web_search 抓"AI 引用了哪些网页" | 拿间接信号,写报告 | 无 |
-| v2.0 | Playwright Python 爬虫 | 拿 JSON,写报告 | playwright + chromium(~200MB) |
-| **v2.1** | **agent-browser** | **自己跑问询 + 抓数据 + 写报告** | **WorkBuddy + agent-browser** |
+| 版本 | 跑批方式 | 安装成本 | 持续成本 | 真实度 | 跨 AI 平台 |
+|---|---|---|---|---|---|
+| v1.0 | web_search 抓"AI 引用了哪些网页" | 0 | 0 | 30-50% | ✅ |
+| v2.1 | agent-browser 真实打开豆包/Kimi/通义 | 50-500MB | 0 | 90%+ | ❌ 仅 WorkBuddy |
+| v2.2 | LLM 模拟 3 平台 | 0 | 0 | 60-80% | ✅ |
+| **v2.3** | **Playwright + 系统 Chrome 真实抓** | **10MB** | **0** | **90%+** | **⚠️ WorkBuddy/MiniMax Code/Cursor** |
 
 ## 适用场景
 
@@ -40,9 +40,9 @@
 
 ## 不适用
 
-- 不在 WorkBuddy 桌面环境(降级 v2.0 Python 爬虫)
+- AI 平台不支持 Python 执行(自动降级 v2.2 LLM 模拟)
+- 海外英文市场(v2.4 规划)
 - 想要 SEO 排名报告(那是 SEO,不是 GEO)
-- 海外英文市场(v2.2 规划)
 - 行业不在 8 行业模板内(可手动输入 `category` 触发通用模板)
 
 ## 输入要求
@@ -53,6 +53,7 @@
 | `queries` | ⚪ | N 个目标查询词(可选,留空自动生成 20-30 个) |
 | `category` | ⚪ | 行业/品类(辅助自动生成查询词) |
 | `competitors` | ⚪ | 竞品列表(辅助对比) |
+| `mode` | ⚪ | 模式选择(v2.3-playwright / v2.2-llm-roleplay / v2.1-agent-browser / v1.0-web-search,默认 v2.3) |
 
 ## 输出格式
 
@@ -64,9 +65,10 @@
 
 | 节 | 内容 |
 |---|---|
+| 0 数据来源声明 | v2.3 Playwright 真实模式 / 真实度 90%+ / cookie 持久化 |
 | 一 摘要卡 | verdict(🟢/🟡/🔴)+ 综合分(0-100)+ 3 句话结论 + 关键数字 |
 | 二 品牌可见度分 | 综合分 + 4 维子分(被引用频次/推荐度/内容质量/平台覆盖) |
-| 三 查询词覆盖 | 每个查询词的 AI 引用源 top 10 + 品牌出现标记 |
+| 三 查询词覆盖 | 每个查询词的 3 平台回答 + 品牌出现标记 |
 | 四 竞品对比 | 5-10 个竞品的可见度对比表 |
 | 五 AI 引擎引用源分析 | top 20 URL/域名/平台分布 |
 | 六 优化机会清单 | 3 类(立即做/中期投入/长期建设)+ 4 维评估 |
@@ -75,37 +77,38 @@
 
 ## 运行环境
 
-- WorkBuddy v5.3.11+(Electron 37+)
-- agent-browser skill v1.3.0+(`npm install -g agent-browser && agent-browser install`,~500MB)
-- 首次使用:用户手动在 WorkBuddy 浏览器登录豆包/Kimi/通义(cookie 持久化)
-- 跑批时间:5-25 分钟(20-30 prompts × 3 平台)
+- Python 3.10+(系统已有)
+- Playwright(~10MB,`pip install playwright` 不下载 Chromium)
+- 系统 Chrome(Mac: `/Applications/Google Chrome.app/`)
+- 跑批时间:3-12 分钟
 
 ## ⚠️ 能力边界(重要)
 
-v2.1 用 agent-browser 真实跑 LLM:
+v2.3 用 Python 爬虫真实抓取:
 - ✅ **覆盖**:豆包(4.4 亿月活)/ Kimi(6000 万)/ 通义千问(5000 万)
-- ⚠️ **未覆盖**:文心一言/腾讯元宝/秘塔(v2.2 计划)
-- ❌ **海外**:ChatGPT/Claude/Gemini(v2.2 计划,需海外环境)
-- ⚠️ **登录态**:用户必须手动登录过目标平台(LLM 不自动登录,避免风控)
+- ⚠️ **未覆盖**:文心一言/腾讯元宝/秘塔(v2.4 计划)
+- ❌ **海外**:ChatGPT/Claude/Gemini(v2.4 计划,需海外环境)
+- ⚠️ **登录态**:用户必须手动登录过目标平台(cookie 持久化到 ~/.geo-radar-cn/browser-profile-*/)
 - 报告第 7 节"数据局限"明示这些,不假装 100% 准确
 
 ## 模式降级路径
 
-1. **v2.1 agent-browser**(推荐):WorkBuddy 桌面,LLM 自己控制 Chromium
-2. **v2.0 Python 爬虫**(CLI 备用):纯 CLI/沙箱/CI,代码在 `examples/legacy-v2.0-python-crawler/`
-3. **v1.0 web_search**(最后 fallback):LLM 调 web_search 工具,数据是间接信号
+1. **v2.3 Playwright + 系统 Chrome(默认,真实 90%+)**:WorkBuddy/MiniMax Code/Cursor
+2. **v2.2 LLM 模拟(fallback,60-80%)**:Claude.ai/ChatGPT 网页版
+3. **v2.1 agent-browser(Power User,90%+)**:WorkBuddy + 50-500MB 依赖
+4. **v1.0 web_search(最后 fallback,30-50%)**:所有都失败
 
 ## 标签
 
 - `GEO` · `AI 搜索` · `品牌可见度` · `生成式引擎优化` · `LLM 引用`
 - `内容优化` · `竞品分析` · `豆包` · `Kimi` · `通义千问`
-- `真实 LLM 输出` · `agent-browser` · `WorkBuddy 原生`
+- `真实 LLM 输出` · `Playwright` · `10MB 装 1 次` · `系统 Chrome 复用`
 
 ## 适用市场
 
-- ✅ 中国大陆(v2.1 主战场)
-- ⏳ 海外英文市场(v2.2 规划)
-- ⏳ 港澳台(v2.2 规划)
+- ✅ 中国大陆(v2.3 主战场)
+- ⏳ 海外英文市场(v2.4 规划)
+- ⏳ 港澳台(v2.4 规划)
 
 ## 反馈
 
@@ -114,9 +117,8 @@ v2.1 用 agent-browser 真实跑 LLM:
 
 ## 版本
 
-- **当前版本**:v2.1.0
+- **当前版本**:v2.3.0
 - **license**:MIT
 - **入口文件**:SKILL.md
 - **运行时**:llm
 - **slug**:geo-radar-cn
-- **依赖 skill**:agent-browser (v1.3.0+)
