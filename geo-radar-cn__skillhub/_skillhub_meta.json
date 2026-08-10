@@ -1,0 +1,8 @@
+{
+  "slug": "geo-radar-cn",
+  "name": "GEO 雷达",
+  "version": "1.0.0",
+  "installedAt": null,
+  "source": "skillhub",
+  "notes": "占位文件，用户安装时由 skillhub 平台自动填入 installedAt"
+}
