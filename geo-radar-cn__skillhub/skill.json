@@ -1,19 +1,27 @@
 {
-  "name": "GEO 雷达：基于公开数据的多 AI 引擎可见度诊断与优化指引",
-  "version": "1.0.0",
-  "description": "面向中文用户的 GEO（生成式引擎优化）可见度诊断 skill：输入品牌名（必填）+ 目标查询词（可选，自动生成），输出 8 节结构化报告（摘要卡 / 品牌可见度分 / 查询词覆盖 / 竞品对比 / 引用源分析 / 优化机会 / 数据局限 / 行动清单）。基于 web_search 代理信号覆盖 Google AI Overview + Perplexity 引用的网页。",
+  "name": "GEO 雷达 v2.1：基于 agent-browser 的多 LLM 引擎可见度真实诊断（WorkBuddy 原生）",
+  "version": "2.1.0",
+  "description": "面向中文用户的 GEO（生成式引擎优化）可见度诊断 skill v2.1：通过 WorkBuddy 内置 agent-browser skill 直接打开豆包/Kimi/通义网页,输入 prompt,抓真实 LLM 输出(文本+截图+引用源),分析品牌在 AI 回答中的出现频次 / 排名位置 / 推荐度 / 引用源。v2.0 的 Playwright Python 爬虫降为 CLI 备用,代码在 examples/legacy-v2.0-python-crawler/。v1.0 web_search 模式保留为最后 fallback。",
   "license": "MIT",
   "runtime": "llm",
   "entry": "SKILL.md",
+  "required_skills": [
+    "agent-browser"
+  ],
   "tags": [
     "GEO",
     "AI 搜索",
     "品牌可见度",
     "生成式引擎优化",
-    "AI 引用",
+    "LLM 引用",
     "内容优化",
     "竞品分析",
-    "豆包 / Kimi / 文心"
+    "豆包",
+    "Kimi",
+    "通义千问",
+    "真实 LLM 输出",
+    "agent-browser",
+    "WorkBuddy 原生"
   ],
   "keywords": [
     "GEO",
@@ -21,19 +29,20 @@
     "生成式引擎优化",
     "品牌可见度",
     "AI 引用",
-    "ChatGPT 推荐",
     "豆包推荐",
     "Kimi 推荐",
-    "文心一言推荐",
-    "Perplexity",
-    "Google AI Overview",
+    "通义千问推荐",
+    "ChatGPT 推荐",
     "AI SEO",
     "AEO",
     "答案引擎优化",
     "竞品 GEO",
     "内容结构化",
     "EEAT",
-    "可引用性"
+    "可引用性",
+    "agent-browser",
+    "WorkBuddy",
+    "vercel-labs"
   ],
   "triggers": [
     "我的品牌在 AI 搜索里被提到多少",
@@ -42,17 +51,17 @@
     "GEO 可见度",
     "AI 搜索优化",
     "AI 推荐",
-    "豆包 / Kimi / 文心 推荐了哪些",
+    "豆包 / Kimi / 通义 推荐了哪些",
     "我的品牌在 ChatGPT 推荐里吗",
     "查一下我的 GEO 表现",
     "看看我的品牌在 AI 里被怎么提的"
   ],
   "input_schema": {
-    "brand": "string 必填：品牌名 / 域名 / 产品名",
-    "queries": "string[]? 可选：目标查询词列表（留空则基于 brand + category 自动生成 20-30 个）",
-    "category": "string? 可选：行业/品类（辅助自动生成查询词），如 奶茶 / SaaS / 教育 / 旅游",
-    "competitors": "string[]? 可选：竞品列表（辅助对比），如 喜茶 / 古茗 / 益禾堂"
+    "brand": "string 品牌名 / 域名 / 产品名（必填）",
+    "queries": "string[]? 目标查询词（可选,缺失时按 category 自动生成 20-30 个）",
+    "category": "string? 行业/品类（可选,缺失时 LLM 推断）",
+    "competitors": "string[]? 竞品列表（可选,缺失时 LLM 推断 5-10 个）"
   },
   "output_formats": ["markdown"],
-  "data_source": "公开网络内容（web_search 代理信号：Google AI Overview + Perplexity 引用的网页）"
+  "data_source": "agent-browser 真实问询豆包/Kimi/通义的 LLM 输出（v2.1 真实信号）;v1.0 web_search 代理信号（fallback）"
 }

@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-GEO 雷达 Skill · 静态模式检查器
+GEO 雷达 Skill · 静态模式检查器 (v2.1)
 
 验证 skill 包结构与核心内容完整性,不调用 LLM。
-- 必需文件存在性
-- YAML frontmatter 字段
+- 必需文件存在性（v2.1 WorkBuddy native）
+- YAML frontmatter 字段（含 requiredSkills: [agent-browser]）
 - 4 大 Hard Constraint（主语锁定 / 数据时效 / 标签系统 / 8 节报告）
 - 14 条禁止项
 - 中国 only 硬限制
 - 8 行业 × 4 类型查询词模板
-- references/ 子文件（4 个 + 8 节 schema + 24 字段 prompt）
+- references/ 子文件（含 agent-browser-setup.md）
 - skill.json 字段 + 输入 schema + 触发词
 - icon.png 1024×1024
-- examples 3 份范本
+- examples（含 legacy v2.0 python crawler 备份）
+- v2.1 WorkBuddy 原生 + agent-browser 集成检查
+- v2.0 CLI 备用代码完整性
 
 运行：python3 tests/pattern_checker.py
 
@@ -56,10 +58,10 @@ def read(path: Path) -> str:
 
 
 # ============================================================
-# 1. 必需文件
+# 1. 必需文件（v2.1）
 # ============================================================
 def check_required_files() -> None:
-    print("\n[1/10] 必需文件存在性")
+    print("\n[1/12] 必需文件存在性")
     required = [
         "SKILL.md",
         "skill.json",
@@ -73,34 +75,35 @@ def check_required_files() -> None:
         "references/report-schema.md",
         "references/web-search-prompts.md",
         "references/chaos-cases.md",
+        "references/llm-test-prompts.md",
+        "references/agent-browser-setup.md",  # v2.1 新增
     ]
     for f in required:
         if (ROOT / f).exists():
             ok(f)
         else:
             err(f"{f} 缺失")
-    # v2.0 爬虫模块
-    v2_required = [
-        "scripts/crawler/__init__.py",
-        "scripts/crawler/doubao.py",
-        "scripts/crawler/kimi.py",
-        "scripts/crawler/tongyi.py",
-        "scripts/crawler/runner.py",
-        "references/crawler-setup.md",
-        "references/llm-test-prompts.md",
+    # v2.0 备用代码（应移到 examples/legacy-v2.0-python-crawler/）
+    legacy_files = [
+        "examples/legacy-v2.0-python-crawler/README.md",
+        "examples/legacy-v2.0-python-crawler/scripts/doubao.py",
+        "examples/legacy-v2.0-python-crawler/scripts/kimi.py",
+        "examples/legacy-v2.0-python-crawler/scripts/tongyi.py",
+        "examples/legacy-v2.0-python-crawler/scripts/runner.py",
+        "examples/legacy-v2.0-python-crawler/run_mixue_demo.sh",
     ]
-    for f in v2_required:
+    for f in legacy_files:
         if (ROOT / f).exists():
-            ok(f"v2.0: {f}")
+            ok(f"legacy: {f.split('/')[-1]}")
         else:
-            err(f"v2.0 缺失: {f}")
+            warn(f"legacy 缺失（v2.0 CLI 备用）: {f}")
 
 
 # ============================================================
 # 2. SKILL.md frontmatter
 # ============================================================
 def check_skill_md_frontmatter() -> None:
-    print("\n[2/10] SKILL.md frontmatter")
+    print("\n[2/12] SKILL.md frontmatter")
     text = read(ROOT / "SKILL.md")
     m = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
     if not m:
@@ -113,25 +116,42 @@ def check_skill_md_frontmatter() -> None:
             ok(f"frontmatter.{f}")
         else:
             err(f"frontmatter.{f} 缺失")
+    # v2.1 必填: requiredSkills 包含 agent-browser
+    if re.search(r"^requiredSkills\s*:", fm, re.MULTILINE):
+        ok("frontmatter.requiredSkills")
+    else:
+        err("frontmatter.requiredSkills 缺失（v2.1 关键字段）")
+    if "agent-browser" in fm:
+        ok("frontmatter 声明 agent-browser 依赖")
+    else:
+        err("frontmatter 缺少 agent-browser 依赖声明")
+    # version 应是 2.1.0+
+    m_ver = re.search(r"^version\s*:\s*([\d.]+)", fm, re.MULTILINE)
+    if m_ver:
+        ver = m_ver.group(1)
+        if ver.startswith("2.1"):
+            ok(f"version: {ver}")
+        else:
+            warn(f"version {ver} (期望 2.1.x)")
 
 
 # ============================================================
 # 3. 中国 only 硬限制 + 免责声明
 # ============================================================
 def check_china_only_and_disclaimer() -> None:
-    print("\n[3/10] 中国 only 硬限制 + 免责声明")
+    print("\n[3/12] 中国 only 硬限制 + 免责声明")
     text = read(ROOT / "SKILL.md")
-    if re.search(r"v1\.x.*中国|海外场景.*v2\.0|非中国城市", text):
-        ok("v1.x 中国 only 硬限制提示存在")
+    if re.search(r"v1\.x.*中国|海外场景.*v2\.2|非中国城市", text):
+        ok("中国 only 硬限制提示存在")
     else:
-        err("v1.x 中国 only 硬限制缺失")
+        err("中国 only 硬限制缺失")
     if "免责声明" in text and "Hard Requirement" in text:
         ok("免责声明 Hard Requirement 存在")
     else:
         err("免责声明 Hard Requirement 缺失")
-    # 数据局限章节
-    if "数据局限" in text and "v1.0" in text and "豆包" in text:
-        ok("数据局限章节明示 v1.0 能力边界（豆包/Kimi/文心是 SPA）")
+    # 数据局限章节（v2.1 应提到 agent-browser 相关局限）
+    if "数据局限" in text and ("豆包" in text or "Kimi" in text or "通义" in text):
+        ok("数据局限章节提到主流 LLM 平台")
     else:
         err("数据局限章节缺失或不完整")
 
@@ -140,7 +160,7 @@ def check_china_only_and_disclaimer() -> None:
 # 4. 14 条禁止项
 # ============================================================
 def check_skill_md_prohibitions() -> None:
-    print("\n[4/10] SKILL.md 14 条禁止项")
+    print("\n[4/12] SKILL.md 14 条禁止项")
     text = read(ROOT / "SKILL.md")
     expected = [
         ("主语 1", "禁止自动延展为其他品牌的可见度测算"),
@@ -169,7 +189,7 @@ def check_skill_md_prohibitions() -> None:
 # 5. Hard Constraint: 主语锁定 + 查询词自动生成
 # ============================================================
 def check_subject_lock_and_query_gen() -> None:
-    print("\n[5/10] Hard Constraint · 主语锁定 + 查询词自动生成")
+    print("\n[5/12] Hard Constraint · 主语锁定 + 查询词自动生成")
     text = read(ROOT / "SKILL.md")
     if "Step 0.5" in text and "主语锁定" in text and "Hard Constraint" in text:
         ok("Step 0.5 主语锁定 Hard Constraint")
@@ -193,7 +213,7 @@ def check_subject_lock_and_query_gen() -> None:
 # 6. Hard Constraint: 数据时效分级
 # ============================================================
 def check_data_freshness() -> None:
-    print("\n[6/10] Hard Constraint · 数据时效分级")
+    print("\n[6/12] Hard Constraint · 数据时效分级")
     text = read(ROOT / "SKILL.md")
     if "Step 0.6" in text and "数据时效" in text and "Hard Constraint" in text:
         ok("Step 0.6 数据时效分级 Hard Constraint")
@@ -214,12 +234,10 @@ def check_data_freshness() -> None:
 # 7. 8 节报告 + 3 附录
 # ============================================================
 def check_report_sections() -> None:
-    print("\n[7/10] 8 节报告 + 3 附录")
-    # 8 节标题在 report-schema.md 里(详细定义),SKILL.md 只描述渲染规则
+    print("\n[7/12] 8 节报告 + 3 附录")
     text = read(ROOT / "references" / "report-schema.md")
     if not text:
         return
-    # 8 节
     sections = [
         "摘要卡", "品牌可见度分", "查询词覆盖", "竞品对比",
         "AI 引擎引用源分析", "优化机会清单", "数据局限", "行动清单",
@@ -229,7 +247,6 @@ def check_report_sections() -> None:
             ok(f"8 节: {sec}")
         else:
             err(f"8 节缺失: {sec}")
-    # 3 附录(也在 report-schema.md)
     for app in ["附录 A", "附录 B", "附录 C"]:
         if app in text:
             ok(f"附录: {app}")
@@ -241,7 +258,7 @@ def check_report_sections() -> None:
 # 8. Hard Constraint: 4 维标签系统
 # ============================================================
 def check_label_system() -> None:
-    print("\n[8/10] Hard Constraint · 4 维标签系统")
+    print("\n[8/12] Hard Constraint · 4 维标签系统")
     text = read(ROOT / "SKILL.md")
     if "Step 2.7" in text and "标签" in text and "Hard Constraint" in text:
         ok("Step 2.7 完整标签系统 Hard Constraint")
@@ -268,7 +285,7 @@ def check_label_system() -> None:
 # 9. 8 行业查询词模板
 # ============================================================
 def check_query_templates() -> None:
-    print("\n[9/10] 8 行业查询词模板")
+    print("\n[9/12] 8 行业查询词模板")
     text = read(ROOT / "references" / "query-templates.md")
     if not text:
         return
@@ -278,7 +295,6 @@ def check_query_templates() -> None:
             ok(f"行业: {cat}")
         else:
             err(f"行业缺失: {cat}")
-    # 4 类型
     types = ["推荐型", "对比型", "痛点型", "决策型"]
     for t in types:
         if t in text:
@@ -291,7 +307,7 @@ def check_query_templates() -> None:
 # 10. skill.json + icon + examples
 # ============================================================
 def check_skill_json() -> None:
-    print("\n[10/10] skill.json 完整性 + icon + examples")
+    print("\n[10/12] skill.json 完整性 + icon + examples")
     path = ROOT / "skill.json"
     if not path.exists():
         err("skill.json 缺失")
@@ -308,14 +324,21 @@ def check_skill_json() -> None:
             ok(f"skill.json.{f}")
         else:
             err(f"skill.json.{f} 缺失")
+    # v2.1 必填: required_skills
+    if "required_skills" in data:
+        ok("skill.json.required_skills")
+        if "agent-browser" in data.get("required_skills", []):
+            ok("required_skills 包含 agent-browser")
+        else:
+            err("required_skills 应包含 agent-browser")
+    else:
+        err("skill.json.required_skills 缺失（v2.1 关键字段）")
     # input_schema 必填 brand
     schema = data.get("input_schema", {})
-    for f in ["brand"]:
-        if f in schema:
-            ok(f"input_schema.{f} 必填")
-        else:
-            err(f"input_schema.{f} 必填缺失")
-    # input_schema 可选 queries
+    if "brand" in schema:
+        ok("input_schema.brand 必填")
+    else:
+        err("input_schema.brand 必填缺失")
     if "queries" in schema:
         ok("input_schema.queries 可选")
     else:
@@ -363,50 +386,103 @@ def check_skill_json() -> None:
         warn(f"examples {len(files)} 份范本（建议 ≥ 3 覆盖高/中/低数据）")
 
 
-def check_v2_crawler_module() -> None:
-    """v2.0 爬虫模块完整性检查(代码可解析 + 关键类/函数存在)"""
-    print("\n[11/11] v2.0 爬虫模块完整性")
-    # 1. 关键类名存在(grep 静态检查,不实际 import)
-    class_checks = {
-        "scripts/crawler/doubao.py": ["class DoubaoCrawler", "def ask", "def login"],
-        "scripts/crawler/kimi.py": ["class KimiCrawler", "def ask", "def login"],
-        "scripts/crawler/tongyi.py": ["class TongyiCrawler", "def ask", "def login"],
-        "scripts/crawler/runner.py": ["class GEORunner", "def run_batch", "def save_report"],
-    }
-    for file, needles in class_checks.items():
-        text = read(ROOT / file)
-        if not text:
-            err(f"{file} 无法读取")
-            continue
-        for needle in needles:
-            if needle in text:
-                ok(f"{file.split('/')[-1]}: {needle}")
-            else:
-                err(f"{file} 缺: {needle}")
-    # 2. SKILL.md 提到 v2.0 + playwright
+# ============================================================
+# 11. v2.1 WorkBuddy native + agent-browser 集成检查
+# ============================================================
+def check_v21_agent_browser() -> None:
+    """v2.1 WorkBuddy native + agent-browser skill 集成检查"""
+    print("\n[11/12] v2.1 WorkBuddy native + agent-browser 集成")
+    # 1. SKILL.md 提到 agent-browser 和关键命令
     skill_text = read(ROOT / "SKILL.md")
-    if "v2.0" in skill_text and "playwright" in skill_text.lower():
-        ok("SKILL.md 提到 v2.0 + playwright")
+    must_have_in_skill = [
+        "agent-browser",
+        "agent-browser open",
+        "agent-browser snapshot",
+        "agent-browser type",
+        "agent-browser close",
+        "agent-browser-setup.md",
+        "vercel-labs",
+    ]
+    for needle in must_have_in_skill:
+        if needle in skill_text:
+            ok(f"SKILL.md 包含: {needle}")
+        else:
+            err(f"SKILL.md 缺: {needle}")
+    # 2. Step 1 重写为"LLM 调 agent-browser"
+    if "Step 1:" in skill_text and "LLM 调用 agent-browser" in skill_text:
+        ok("Step 1 重写为 LLM 调 agent-browser 模式")
     else:
-        warn("SKILL.md 应明确写 v2.0 + playwright")
-    # 3. 关键平台 URL 出现
+        err("Step 1 未重写为 agent-browser 模式")
+    # 3. agent-browser-setup.md 关键内容
+    setup_text = read(ROOT / "references" / "agent-browser-setup.md")
+    if setup_text:
+        must_have = [
+            "agent-browser --version",
+            "agent-browser install",
+            "snapshot -i",
+            "wait --load load",
+            "close",  # session 模型
+        ]
+        for needle in must_have:
+            if needle in setup_text:
+                ok(f"agent-browser-setup.md 包含: {needle}")
+            else:
+                err(f"agent-browser-setup.md 缺: {needle}")
+    # 4. 平台 URL 出现
     urls = ["doubao.com", "kimi.moonshot.cn", "tongyi.aliyun.com"]
     for url in urls:
-        if url in skill_text or url in read(ROOT / "scripts/crawler/doubao.py") or url in read(ROOT / "scripts/crawler/runner.py"):
+        if url in skill_text or url in read(ROOT / "references" / "agent-browser-setup.md"):
             ok(f"平台 URL: {url}")
         else:
             warn(f"平台 URL 不在文档: {url}")
-    # 4. CHANGELOG 提到 v2.0
+    # 5. CHANGELOG 提到 v2.1
     changelog = read(ROOT / "CHANGELOG.md")
-    if "v2.0" in changelog or "[2.0" in changelog:
-        ok("CHANGELOG 记录 v2.0")
+    if "[2.1" in changelog:
+        ok("CHANGELOG 记录 v2.1 重构")
     else:
-        err("CHANGELOG 应记录 v2.0 重构")
+        err("CHANGELOG 应记录 v2.1 重构")
+
+
+# ============================================================
+# 12. v2.0 CLI 备用代码完整性（legacy 文件）
+# ============================================================
+def check_v20_legacy_code() -> None:
+    """v2.0 Python 爬虫代码备份完整性（CLI 备用）"""
+    print("\n[12/12] v2.0 CLI 备用代码完整性（legacy 备份）")
+    legacy_dir = ROOT / "examples" / "legacy-v2.0-python-crawler"
+    if not legacy_dir.exists():
+        warn("examples/legacy-v2.0-python-crawler/ 缺失（v2.0 CLI 备用）")
+        return
+    # 关键类名存在
+    class_checks = {
+        "scripts/doubao.py": ["class DoubaoCrawler", "def ask", "def login"],
+        "scripts/kimi.py": ["class KimiCrawler", "def ask", "def login"],
+        "scripts/tongyi.py": ["class TongyiCrawler", "def ask", "def login"],
+        "scripts/runner.py": ["class GEORunner", "def run_batch", "def save_report"],
+    }
+    for file, needles in class_checks.items():
+        text = read(legacy_dir / file)
+        if not text:
+            warn(f"legacy {file} 无法读取")
+            continue
+        for needle in needles:
+            if needle in text:
+                ok(f"legacy {file.split('/')[-1]}: {needle}")
+            else:
+                warn(f"legacy {file} 缺: {needle}")
+    # legacy README 应说明"已弃用 + CLI 备用"
+    readme = read(legacy_dir / "README.md")
+    if readme:
+        for keyword in ["已弃用", "CLI 备用", "v2.1", "agent-browser"]:
+            if keyword in readme:
+                ok(f"legacy README 包含: {keyword}")
+            else:
+                warn(f"legacy README 缺: {keyword}")
 
 
 def main() -> int:
     print("=" * 60)
-    print("GEO 雷达 Skill · 静态模式检查器")
+    print("GEO 雷达 Skill · 静态模式检查器 (v2.1)")
     print("=" * 60)
     check_required_files()
     check_skill_md_frontmatter()
@@ -418,7 +494,8 @@ def main() -> int:
     check_label_system()
     check_query_templates()
     check_skill_json()
-    check_v2_crawler_module()
+    check_v21_agent_browser()
+    check_v20_legacy_code()
     print("\n" + "=" * 60)
     print(f"汇总: ✅ {len(oks)} pass | ⚠️  {len(warnings)}  warn | ❌ {len(errors)} fail")
     print("=" * 60)
