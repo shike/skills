@@ -58,17 +58,19 @@ class GEORunner:
     }
 
     def __init__(self, platforms: List[str] = None, profile_root: Optional[Path] = None,
-                 output_dir: Optional[Path] = None):
+                 output_dir: Optional[Path] = None, use_system_chrome: bool = False):
         """
         Args:
             platforms: 要跑的平台列表,["doubao", "kimi", "tongyi"] 子集
             profile_root: 各平台 cookie profile 的根目录
             output_dir: 报告输出目录
+            use_system_chrome: True=用系统 Chrome(免下 chromium),False=用 playwright 自带
         """
         self.platforms = platforms or ["doubao", "kimi", "tongyi"]
         self.profile_root = profile_root or Path.home() / ".geo-radar-cn"
         self.output_dir = output_dir or Path.home() / ".geo-radar-cn" / "reports"
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.use_system_chrome = use_system_chrome
         self.crawlers = {}  # {platform: crawler_instance}
 
     def get_crawler(self, platform: str):
@@ -77,18 +79,13 @@ class GEORunner:
             return self.crawlers[platform]
 
         profile_dir = self.profile_root / f"browser-profile-{platform}"
+        common = dict(headless=True, profile_dir=profile_dir, use_system_chrome=self.use_system_chrome)
         if platform == "doubao":
-            self.crawlers[platform] = DoubaoCrawler(
-                headless=True, profile_dir=profile_dir
-            )
+            self.crawlers[platform] = DoubaoCrawler(**common)
         elif platform == "kimi":
-            self.crawlers[platform] = KimiCrawler(
-                headless=True, profile_dir=profile_dir
-            )
+            self.crawlers[platform] = KimiCrawler(**common)
         elif platform == "tongyi":
-            self.crawlers[platform] = TongyiCrawler(
-                headless=True, profile_dir=profile_dir
-            )
+            self.crawlers[platform] = TongyiCrawler(**common)
         else:
             raise ValueError(f"未知平台: {platform}")
         return self.crawlers[platform]
@@ -219,10 +216,12 @@ if __name__ == "__main__":
     parser.add_argument("--category", default="", help="自动生成 prompts 时需要的品类")
     parser.add_argument("--login", action="store_true", help="首次使用:手动登录各平台")
     parser.add_argument("--output", default="json", choices=["json", "markdown"])
+    parser.add_argument("--use-system-chrome", action="store_true",
+                        help="用系统 Chrome(免下 ~190MB chromium)")
     args = parser.parse_args()
 
     platforms = [p.strip() for p in args.platforms.split(",") if p.strip()]
-    runner = GEORunner(platforms=platforms)
+    runner = GEORunner(platforms=platforms, use_system_chrome=args.use_system_chrome)
 
     if args.login:
         runner.login_all()

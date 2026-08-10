@@ -41,15 +41,29 @@ class TongyiCrawler:
     RESPONSE_CONTAINER_SELECTOR = 'div[class*="answer-content"], div[class*="markdown"]'
     CITATION_LINK_SELECTOR = 'a[href*="http"]'
 
+    SYSTEM_CHROME_PATHS = [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/usr/bin/google-chrome",
+        "/usr/bin/chromium-browser",
+    ]
+
     def __init__(self, headless: bool = False, profile_dir: Optional[Path] = None,
-                 interval_sec: float = 3.0, timeout_sec: float = 60.0):
+                 interval_sec: float = 3.0, timeout_sec: float = 60.0,
+                 use_system_chrome: bool = False):
         self.headless = headless
         self.profile_dir = profile_dir or Path.home() / ".geo-radar-cn" / "browser-profile-tongyi"
         self.interval_sec = interval_sec
         self.timeout_sec = timeout_sec
+        self.use_system_chrome = use_system_chrome
         self._context = None
         self._page = None
         self._pw = None
+
+    def _find_system_chrome(self) -> Optional[str]:
+        for p in self.SYSTEM_CHROME_PATHS:
+            if Path(p).exists():
+                return p
+        return None
 
     def _ensure_browser(self):
         if self._context is not None:
@@ -59,14 +73,14 @@ class TongyiCrawler:
             from playwright.sync_api import sync_playwright
         except ImportError:
             raise ImportError(
-                "playwright 未安装。请运行: pip install playwright && playwright install chromium"
+                "playwright 未安装。请运行: pip install playwright"
             )
 
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         pw = sync_playwright().start()
         self._pw = pw
 
-        self._context = pw.chromium.launch_persistent_context(
+        launch_kwargs = dict(
             user_data_dir=str(self.profile_dir),
             headless=self.headless,
             viewport={"width": 1280, "height": 800},
@@ -74,6 +88,15 @@ class TongyiCrawler:
             user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         )
+        if self.use_system_chrome:
+            sys_chrome = self._find_system_chrome()
+            if sys_chrome:
+                launch_kwargs["executable_path"] = sys_chrome
+                print(f"[*] 使用系统 Chrome: {sys_chrome}")
+            else:
+                print("[!] 系统 Chrome 未找到,fallback 到 playwright 默认 chromium")
+
+        self._context = pw.chromium.launch_persistent_context(**launch_kwargs)
         self._page = self._context.new_page()
         self._page.set_default_timeout(self.timeout_sec * 1000)
 

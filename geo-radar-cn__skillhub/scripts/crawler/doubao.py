@@ -12,13 +12,17 @@
 
 环境要求:
     pip install playwright
-    playwright install chromium
+    浏览器: 两种选法 (按网速 / 磁盘挑一个)
+      a) playwright install chromium        # 下载 ~190MB,内置 Chrome for Testing
+      b) 用系统 Chrome: --executable-path     # 复用 /Applications/Google Chrome.app
+
     首次运行: 浏览器会打开,用户手动登录豆包,cookie 持久化到 ~/.geo-radar-cn/browser-profile/
 
 注意:
     - 豆包反爬: 每次问询间隔 ≥ 3 秒,避免触发限流
     - 单次问询超时: 60 秒
     - 登录态: 用 playwright persistent context(cookie 自动保留 30 天)
+    - 必须登录才能拿到回答,未登录直接 submit 会被重定向到 ?from_logout=1
 """
 
 import json
@@ -46,46 +50,65 @@ class DoubaoCrawler:
     """豆包爬虫 — playwright 模拟用户问询"""
 
     PLATFORM_URL = "https://www.doubao.com/chat/"
-    QUERY_INPUT_SELECTOR = 'textarea[data-testid="chat-input"]'  # 豆包输入框 selector
-    SUBMIT_BUTTON_SELECTOR = 'button[data-testid="send-button"]'  # 发送按钮
-    RESPONSE_CONTAINER_SELECTOR = 'div[data-message-role="assistant"]'  # 回答容器
-    CITATION_LINK_SELECTOR = 'a[data-testid="citation-link"]'  # 引用源链接
+    # 2026-08-10 实测: 豆包实际 DOM 没有 data-testid,真实 selector 如下
+    QUERY_INPUT_SELECTOR = 'textarea[placeholder="发消息..."]'  # 真实输入框(placeholder 是 "发消息...")
+    SUBMIT_BUTTON_SELECTOR = 'button:has(svg path[d^="M3"]):not([class*="cornerCloseButton"])'  # 发送按钮(有上箭头 svg)
+    RESPONSE_CONTAINER_SELECTOR = '[data-message-role="assistant"]'  # 回答容器
+    CITATION_LINK_SELECTOR = 'a[href*="//"]'  # 引用源(豆包回答里所有外链)
+
+    # 系统 Chrome 路径(快速通道,免下 chromium-1234)
+    SYSTEM_CHROME_PATHS = [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/usr/bin/google-chrome",
+        "/usr/bin/chromium-browser",
+    ]
 
     def __init__(self, headless: bool = False, profile_dir: Optional[Path] = None,
-                 interval_sec: float = 3.0, timeout_sec: float = 60.0):
+                 interval_sec: float = 3.0, timeout_sec: float = 60.0,
+                 use_system_chrome: bool = False):
         """
         Args:
             headless: 是否无头模式。首次使用建议 False 以便手动登录
             profile_dir: 浏览器 profile 目录(cookie 持久化)
             interval_sec: 每次问询之间的间隔(避免反爬)
             timeout_sec: 单次问询超时时间
+            use_system_chrome: True=用系统 Chrome(免下载 190MB),False=用 playwright 自带 chromium
         """
         self.headless = headless
         self.profile_dir = profile_dir or Path.home() / ".geo-radar-cn" / "browser-profile"
         self.interval_sec = interval_sec
         self.timeout_sec = timeout_sec
+        self.use_system_chrome = use_system_chrome
         self._browser = None
         self._context = None
         self._page = None
+        self._pw = None
+
+    def _find_system_chrome(self) -> Optional[str]:
+        """找系统 Chrome 路径(用 use_system_chrome=True 时)"""
+        for p in self.SYSTEM_CHROME_PATHS:
+            if Path(p).exists():
+                return p
+        return None
 
     def _ensure_browser(self):
         """懒加载浏览器(persistent context,cookie 自动保留)"""
-        if self._browser is not None:
+        if self._context is not None:
             return
 
         try:
             from playwright.sync_api import sync_playwright
         except ImportError:
             raise ImportError(
-                "playwright 未安装。请运行: pip install playwright && playwright install chromium"
+                "playwright 未安装。请运行: pip install playwright"
             )
 
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         pw = sync_playwright().start()
-        self._pw = pw  # 保留以备 __exit__
+        self._pw = pw  # 保留以备 close
 
-        # 用 persistent context,cookie 自动持久化
-        self._context = pw.chromium.launch_persistent_context(
+        # 启动参数
+        launch_kwargs = dict(
             user_data_dir=str(self.profile_dir),
             headless=self.headless,
             viewport={"width": 1280, "height": 800},
@@ -93,6 +116,18 @@ class DoubaoCrawler:
             user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         )
+
+        # 如果用系统 Chrome,加 executable_path(免下 chromium-1234)
+        if self.use_system_chrome:
+            sys_chrome = self._find_system_chrome()
+            if sys_chrome:
+                launch_kwargs["executable_path"] = sys_chrome
+                print(f"[*] 使用系统 Chrome: {sys_chrome}")
+            else:
+                print("[!] 系统 Chrome 未找到,fallback 到 playwright 默认 chromium")
+
+        # 用 persistent context,cookie 自动持久化
+        self._context = pw.chromium.launch_persistent_context(**launch_kwargs)
         # launch_persistent_context 直接返回 context,没有 browser
         # 打开一个 page
         self._page = self._context.new_page()
@@ -140,12 +175,13 @@ class DoubaoCrawler:
             # 2. 输入 prompt
             input_box = self._page.locator(self.QUERY_INPUT_SELECTOR).first
             input_box.wait_for(state="visible", timeout=10000)
+            input_box.click()  # 先聚焦(否则 fill 可能不触发 onChange)
             input_box.fill("")  # 清空
             input_box.fill(prompt)
             time.sleep(0.5)
 
-            # 3. 点击发送
-            self._page.locator(self.SUBMIT_BUTTON_SELECTOR).first.click()
+            # 3. 提交: 优先按 Enter(更稳,绕过按钮 selector 变更)
+            input_box.press("Enter")
             time.sleep(1)
 
             # 4. 等回答(轮询检测回答容器出现 + 文本稳定)
@@ -199,9 +235,15 @@ class DoubaoCrawler:
     def close(self):
         """关闭浏览器"""
         if self._context is not None:
-            self._context.close()
-        if hasattr(self, "_pw") and self._pw is not None:
-            self._pw.stop()
+            try:
+                self._context.close()
+            except Exception as e:
+                print(f"[!] 关闭 context 异常(可忽略): {e}")
+        if self._pw is not None:
+            try:
+                self._pw.stop()
+            except Exception as e:
+                print(f"[!] 停止 playwright 异常(可忽略): {e}")
         self._context = None
         self._page = None
         self._pw = None
