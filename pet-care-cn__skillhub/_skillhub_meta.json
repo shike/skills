@@ -1,0 +1,8 @@
+{
+  "slug": "pet-care-cn",
+  "name": "宠物照护咨询",
+  "version": "2.0.0",
+  "installedAt": null,
+  "source": "skillhub",
+  "notes": "v2.0 异宠支持(13 物种 + 25 模板 + 强转诊策略);v1.2 多轮对话:dialogue-context.md + example-05 + 5 条上下文边界;v1.1 多模态:image-recognition.md + example-04;v1.0.1 output_checker 阈值优化(97 pass)"
+}

@@ -1,0 +1,108 @@
+{
+  "name": "宠物照护咨询:6 主题 × 5 类常见宠物 + 8 类异宠结构化问答",
+  "version": "2.0.0",
+  "description": "面向养宠用户的结构化实用咨询框架:6 大主题(饮食/驱虫与疫苗/绝育与生育/行为与训练/新宠到家/老年照护)× 5 类常见宠物(猫/狗/兔/鸟/鼠)× 3 月龄段(幼/成/老)= 90 个细分场景(87 实质 + 3 占位);v2.0 扩展到 8 类异宠(龟/蛇/蜥蜴/雪貂/刺猬/龙猫/大型鹦鹉/蜜袋鼯)简化版模板(每物种 1 通用模板,8 模板 + 8 范例)。AI 按场景结构化输出,涉及症状判断/诊断/用药硬转介兽医,严重行为转介行为学家,临终关怀只引导与兽医讨论。异宠医疗资源稀缺,异宠强转诊策略。零 API Key,纯公知养宠知识,无需联网。",
+  "license": "MIT",
+  "runtime": "llm",
+  "entry": "SKILL.md",
+  "tags": [
+    "宠物照护",
+    "养宠咨询",
+    "结构化问答",
+    "兽医转介",
+    "新手养宠",
+    "月龄分层",
+    "5 类常见宠物",
+    "8 类异宠",
+    "强转诊策略",
+    "行为学家转介",
+    "多模态",
+    "多轮对话"
+  ],
+  "keywords": [
+    "宠物", "养宠", "猫", "狗", "兔", "鸟", "鼠",
+    "龟", "蛇", "蜥蜴", "雪貂", "刺猬", "龙猫", "鹦鹉", "蜜袋鼯",
+    "异宠",
+    "选粮", "驱虫", "疫苗", "绝育", "行为", "新宠到家", "老年照护",
+    "幼猫", "幼犬", "幼兔", "雏鸟", "幼鼠",
+    "公猫尿闭", "GI 停滞", "嗉囊停滞", "湿尾症", "胃扭转",
+    "子宫腺癌", "坏血病", "脂肪肝", "认知障碍",
+    "UVB 灯", "MBD", "温度梯度", "滋养丸", "GI 停滞", "PBFD"
+  ],
+  "triggers": [
+    "我家 [猫/狗/兔/鸟/鼠] [月龄/年龄] 怎么 [做某事]",
+    "我家 [猫/狗] 不吃东西/呕吐/不排便/拉稀",
+    "[猫/狗] 怎么选粮/选砂/选驱虫药",
+    "[猫/狗/兔] 几月绝育最好",
+    "新猫/新狗/新兔/新鸟到家怎么准备",
+    "老年 [猫/狗] 要做什么体检",
+    "[猫/狗/兔/鸟/鼠] 行为问题怎么办",
+    "我家 [龟/蛇/蜥蜴/雪貂/刺猬/龙猫/鹦鹉/蜜袋鼯] 怎么养/不吃东西/怎么办",
+    "[龟] 拒食/不排酸/壳软怎么办",
+    "[鹦鹉] 啄羽/呼吸道问题怎么办",
+    "[蛇] 拒食/蜕皮不全怎么办",
+    "[蜥蜴] 腿软/MBD 怎么办",
+    "宠物照护咨询",
+    "养宠问答",
+    "异宠照护"
+  ],
+  "input_schema": {
+    "species": "string 宠物种类(必填,v2.0 13 选 1):cat | dog | rabbit | bird | rodent | turtle | snake | lizard | ferret | hedgehog | chinchilla | parrot-large | sugar-glider",
+    "topic": "string 咨询主题(必填,6 选 1):diet | dv | neuter | beh | arrival | senior-care",
+    "age_stage": "string 月龄段(必填,3 选 1):junior | adult | senior(异宠可填 all-age 简化)",
+    "question": "string 用户具体问题(必填)",
+    "context": "string? 附加背景(选填,品种/体重/已确诊疾病/已用药物等)",
+    "images": "array? 选填(v1.1+ 多模态支持),1-5 张图片,每张含 id/src/angle 字段",
+    "session_id": "string? 选填(v1.2+ 多轮对话支持),用于继承上下文",
+    "turn_index": "int? 选填(v1.2+),本轮在会话中的位置"
+  },
+  "output_formats": ["markdown"],
+  "output_structure": [
+    "1. 场景定位(1 段 50-100 字)",
+    "2. 核心建议(3-5 条编号)",
+    "3. 关键参数(Markdown 表格)",
+    "4. 常见误区(2-4 条 ❌)",
+    "5. 风险信号(5-7 条,急症标立即就医)",
+    "6. 兽医转介触发器(4-6 条边界声明,异宠强转诊)"
+  ],
+  "data_source": "公知养宠知识(无 API Key,无需联网)",
+  "ethics": "宠物照护咨询不替代兽医;任何症状/诊断/用药问题硬转介线下兽医;严重行为问题转介动物行为学家;临终关怀只引导与兽医讨论不做安乐判断;不主动推荐商品名药物/商品/医院;异宠医疗资源稀缺,强转诊异宠专科",
+  "content_safety": {
+    "blocked_categories": [
+      "暴力", "色情", "仇恨", "政治", "自残", "自杀", "恐怖", "种族歧视",
+      "宠物虐待", "邪教", "毒品", "军火"
+    ],
+    "trigger_action": "礼貌拒绝 + 解释 skill 范围 + 转介专业资源",
+    "prompt_injection_patterns": [
+      "ignore previous instructions", "ignore all previous",
+      "you are now", "system:", "forget everything",
+      "new instructions:", "disregard all", "act as", "pretend to be"
+    ],
+    "injection_action": "警告 + 拒绝 + 提示用户用正常问法"
+  },
+  "scenarios": {
+    "common_total": 90,
+    "common_substantive": 87,
+    "common_placeholders": 3,
+    "exotic_total": 8,
+    "exotic_template_strategy": "每物种 1 通用模板(简化版,不细分 6 主题 × 3 月龄)",
+    "by_topic": {
+      "diet": 15,
+      "dv": 15,
+      "neuter": 15,
+      "beh": 15,
+      "arrival": 15,
+      "senior-care": 10
+    },
+    "by_species": {
+      "cat": 18, "dog": 18, "rabbit": 18, "bird": 18, "rodent": 18,
+      "turtle": 1, "snake": 1, "lizard": 1, "ferret": 1,
+      "hedgehog": 1, "chinchilla": 1, "parrot-large": 1, "sugar-glider": 1
+    }
+  },
+  "templates": 25,
+  "boundary_keywords": 117,
+  "asset_source": "纯文本 + Markdown,无第三方资源依赖",
+  "v2_limits": "5 类常见宠物(猫/狗/兔/鸟/鼠) + 8 类异宠(龟/蛇/蜥蜴/雪貂/刺猬/龙猫/大型鹦鹉/蜜袋鼯) / 6 主题 / 3 月龄段;野生动物/纯医疗诊断/急诊/殡葬/商业产品推荐 不支持。异宠采用简化版策略(每物种 1 通用模板,强转诊异宠专科)。",
+  "v3_roadmap": "联网补充最新研究 / 多语言(英文) / 异宠细化(6 主题 × 3 月龄) / 视频识别(行为诊断) / 兽医在线问诊对接"
+}

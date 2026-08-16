@@ -1,0 +1,6 @@
+{
+  "slug": "pet-care-cn",
+  "version": "2.0.0",
+  "publishedAt": "2026-08-16",
+  "notes": "v2.0 异宠支持:exotic-pets.md(8 物种速查)+ 8 异宠通用模板(turtle/snake/lizard/ferret/hedgehog/chinchilla/parrot-large/sugar-glider)+ example-06-exotic-turtle.md + 13 物种(species enum 5 常见 + 8 异宠)+ safe-boundary § 8.9 异宠强转诊话术。pattern_checker 198/0/0,模板数 25 = 17 常见 + 8 异宠。"
+}
