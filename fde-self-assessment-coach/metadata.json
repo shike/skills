@@ -1,0 +1,36 @@
+{
+  "name": "fde-self-assessment-coach",
+  "display_name": "FDE能力自评教练",
+  "version": "2.4.0",
+  "description": "基于AI-FDE白皮书1444模型与六环交付法的FDE风格诊断：8道现场情境四选一题（四个选项对应四种真实工作风格，没有对错），答完直接在对话中给出六环适配画像、原型倾向（Echo/Delta）与90天行动建议",
+  "author": {
+    "name": "施可",
+    "organization": "苏州水滴跃动科技有限公司"
+  },
+  "tags": [
+    "FDE",
+    "能力测评",
+    "情境判断",
+    "AI落地",
+    "人才盘点",
+    "雷达图",
+    "1444模型",
+    "培训互动"
+  ],
+  "language": "zh-CN",
+  "platform": [
+    "WorkBuddy",
+    "通用Agent Skills"
+  ],
+  "entry": "SKILL.md",
+  "icon": "assets/icon-512.png",
+  "icons": [
+    "assets/icon.svg",
+    "assets/icon-512.png",
+    "assets/icon-256.png",
+    "assets/icon-128.png",
+    "assets/icon-64.png"
+  ],
+  "based_on": "《AI-FDE能力素养与评价体系白皮书（2026版）》（AIFDE-WP-2026-01）",
+  "license": "All rights reserved © 2026 苏州水滴跃动科技有限公司"
+}

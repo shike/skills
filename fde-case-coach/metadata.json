@@ -1,0 +1,35 @@
+{
+  "name": "fde-case-coach",
+  "display_name": "案例实战教练（FDE 实战营 WS1）",
+  "version": "1.0.0",
+  "description": "FDE实战营WS1案例教练：AI扮演有隐藏信息库的制造业客户接受学员访谈（不问不答、好问题给真金），再切换产品负责人教练生成粗版PRD与HTML原型——20轮对话保底交付不跑偏",
+  "author": {
+    "name": "施可",
+    "organization": "苏州水滴跃动科技有限公司"
+  },
+  "tags": [
+    "FDE",
+    "需求访谈",
+    "PRD",
+    "原型设计",
+    "角色扮演",
+    "售前培训",
+    "AI落地"
+  ],
+  "language": "zh-CN",
+  "platform": [
+    "WorkBuddy",
+    "通用Agent Skills"
+  ],
+  "entry": "SKILL.md",
+  "icon": "assets/icon-512.png",
+  "icons": [
+    "assets/icon.svg",
+    "assets/icon-512.png",
+    "assets/icon-256.png",
+    "assets/icon-128.png",
+    "assets/icon-64.png"
+  ],
+  "based_on": "《AI-FDE能力素养与评价体系白皮书（2026版）》（AIFDE-WP-2026-01）",
+  "license": "All rights reserved © 2026 苏州水滴跃动科技有限公司"
+}

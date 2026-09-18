@@ -1,0 +1,35 @@
+{
+  "name": "fde-roadmap-coach",
+  "display_name": "产品化教练（FDE 实战营 WS3）",
+  "version": "2.0.0",
+  "description": "FDE实战营WS3产品化教练：Think Big——把恒润单客户应用放大成服务全国同行的标准化产品；产品化三难挑战（个性化悖论/交付规模化/数据飞轮），15轮保底交付产品定位、市场测算、标准化分离清单与3–5屏产品原型图",
+  "author": {
+    "name": "施可",
+    "organization": "苏州水滴跃动科技有限公司"
+  },
+  "tags": [
+    "FDE",
+    "产品化",
+    "标准化",
+    "原型图",
+    "Think Big",
+    "培训",
+    "AI落地"
+  ],
+  "language": "zh-CN",
+  "platform": [
+    "WorkBuddy",
+    "通用Agent Skills"
+  ],
+  "entry": "SKILL.md",
+  "icon": "assets/icon-512.png",
+  "icons": [
+    "assets/icon.svg",
+    "assets/icon-512.png",
+    "assets/icon-256.png",
+    "assets/icon-128.png",
+    "assets/icon-64.png"
+  ],
+  "based_on": "《AI-FDE能力素养与评价体系白皮书（2026版）》（AIFDE-WP-2026-01）",
+  "license": "All rights reserved © 2026 苏州水滴跃动科技有限公司"
+}

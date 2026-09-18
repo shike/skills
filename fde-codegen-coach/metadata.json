@@ -1,0 +1,35 @@
+{
+  "name": "fde-codegen-coach",
+  "display_name": "代码生成教练（FDE 实战营 WS2）",
+  "version": "1.1.0",
+  "description": "FDE实战营WS2代码生成教练：先对齐冻结《方案确认单》再逐功能生成完整代码，把粗版PRD与原型变成可运行的前后端应用（FastAPI+SQLite+原生前端，一条命令启动）——20轮保底交付\"跑得起来\"",
+  "author": {
+    "name": "施可",
+    "organization": "苏州水滴跃动科技有限公司"
+  },
+  "tags": [
+    "FDE",
+    "代码生成",
+    "全栈开发",
+    "AI编程",
+    "一致性校验",
+    "培训",
+    "AI落地"
+  ],
+  "language": "zh-CN",
+  "platform": [
+    "WorkBuddy",
+    "通用Agent Skills"
+  ],
+  "entry": "SKILL.md",
+  "icon": "assets/icon-512.png",
+  "icons": [
+    "assets/icon.svg",
+    "assets/icon-512.png",
+    "assets/icon-256.png",
+    "assets/icon-128.png",
+    "assets/icon-64.png"
+  ],
+  "based_on": "《AI-FDE能力素养与评价体系白皮书（2026版）》（AIFDE-WP-2026-01）",
+  "license": "All rights reserved © 2026 苏州水滴跃动科技有限公司"
+}

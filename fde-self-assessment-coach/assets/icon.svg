@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#FAF8F3"/>
+  <g stroke="#E2DACB" stroke-width="3" fill="none">
+    <polygon points="256.0,206.0 291.4,220.6 306.0,256.0 291.4,291.4 256.0,306.0 220.6,291.4 206.0,256.0 220.6,220.6"/>
+    <polygon points="256.0,156.0 326.7,185.3 356.0,256.0 326.7,326.7 256.0,356.0 185.3,326.7 156.0,256.0 185.3,185.3"/>
+    <polygon points="256.0,106.0 362.1,149.9 406.0,256.0 362.1,362.1 256.0,406.0 149.9,362.1 106.0,256.0 149.9,149.9"/>
+    <line x1="256" y1="256" x2="256.0" y2="106.0"/>
+    <line x1="256" y1="256" x2="362.1" y2="149.9"/>
+    <line x1="256" y1="256" x2="406.0" y2="256.0"/>
+    <line x1="256" y1="256" x2="362.1" y2="362.1"/>
+    <line x1="256" y1="256" x2="256.0" y2="406.0"/>
+    <line x1="256" y1="256" x2="149.9" y2="362.1"/>
+    <line x1="256" y1="256" x2="106.0" y2="256.0"/>
+    <line x1="256" y1="256" x2="149.9" y2="149.9"/>
+  </g>
+  <polygon points="256.0,162.2 322.3,189.7 349.8,256.0 322.3,322.3 256.0,349.8 189.7,322.3 162.2,256.0 189.7,189.7" fill="none" stroke="#C4532A" stroke-width="3.5" stroke-dasharray="10 9" opacity="0.65"/>
+  <polygon points="256.0,128.5 314.3,197.7 361.0,256.0 303.7,303.7 256.0,349.0 171.1,340.9 181.0,256.0 186.0,186.0" fill="rgba(20,99,90,0.16)" stroke="#14635A" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="256.0" cy="128.5" r="13" fill="#14635A" stroke="#FAF8F3" stroke-width="5"/>
+  <circle cx="314.3" cy="197.7" r="13" fill="#14635A" stroke="#FAF8F3" stroke-width="5"/>
+  <circle cx="361.0" cy="256.0" r="13" fill="#3E8579" stroke="#FAF8F3" stroke-width="5"/>
+  <circle cx="303.7" cy="303.7" r="13" fill="#3E8579" stroke="#FAF8F3" stroke-width="5"/>
+  <circle cx="256.0" cy="349.0" r="13" fill="#C4532A" stroke="#FAF8F3" stroke-width="5"/>
+  <circle cx="171.1" cy="340.9" r="13" fill="#C4532A" stroke="#FAF8F3" stroke-width="5"/>
+  <circle cx="181.0" cy="256.0" r="13" fill="#6E675C" stroke="#FAF8F3" stroke-width="5"/>
+  <circle cx="186.0" cy="186.0" r="13" fill="#6E675C" stroke="#FAF8F3" stroke-width="5"/>
+</svg>
